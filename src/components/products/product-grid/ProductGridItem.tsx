@@ -1,0 +1,38 @@
+"use client";
+
+import { Product } from "@/interfaces"
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+
+
+interface Props{
+    product: Product;
+}
+
+export const ProductGridItem = ({product}:Props) => {
+
+    const [displayVideo, setDisplayVideo] = useState(product.images[0]);
+
+  return (
+    <div className="rounded-md overflow-hidden bg-white">
+         <Link href={`/product/${product.slug}`}>
+            <Image
+                src={`/products/${displayVideo}`}
+                alt={product.title}
+                className="w-full object-cover rounded"
+                width={500}
+                height={500}
+                onMouseLeave={()=>{setDisplayVideo(product.images[0])}}
+                onMouseEnter={()=>{setDisplayVideo(product.images[1])}}
+            />
+         </Link>
+        <div className="p-4 flex flex-col">
+            <Link href={`/product/${product.slug}`} className="hover:text-emerald-400">
+            {product.title}
+            </Link>
+            <span className="font-bold">${product.price}</span>
+        </div>
+    </div>
+  )
+}
