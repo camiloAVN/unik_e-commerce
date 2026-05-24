@@ -32,4 +32,6 @@ export * from './country/get-countries'
 export * from './category/get-categories'
 export * from './category/create-update-category'
 export * from './category/delete-category'
+
+export * from './contact/send-contact-email'
 export * from './product/delete-product'
