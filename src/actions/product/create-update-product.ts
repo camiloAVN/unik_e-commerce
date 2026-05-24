@@ -2,148 +2,52 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { Product } from '@prisma/client';
 import { z } from 'zod';
-import {v2 as cloudinary} from 'cloudinary';
-cloudinary.config( process.env.CLOUDINARY_URL ?? '' );
 
-const productSchema = z.object({
-  id: z.string().uuid().optional().nullable(),
-  title: z.string().min(3).max(255),
-  slug: z.string().min(3).max(255),
-  description: z.string(),
-  price: z.coerce
-    .number()
-    .min(0)
-    .transform( val => Number(val.toFixed(2)) ),
-  inStock: z.coerce
-    .number()
-    .min(0)
-    .transform( val => Number(val.toFixed(0)) ),
-  categoryId: z.string().uuid(),
-  tags: z.string(),
+const schema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().min(1, 'El nombre es requerido').max(255),
+  slug: z.string().min(1, 'El serial es requerido').max(255),
+  description: z.string().min(1, 'La descripción es requerida'),
+  price: z.number().min(0, 'El precio debe ser mayor o igual a 0'),
+  inStock: z.number().int().min(0, 'El stock debe ser mayor o igual a 0'),
+  categoryId: z.string().uuid('Selecciona una categoría'),
+  tags: z.string().default(''),
 });
 
+export type ProductFormData = z.infer<typeof schema>;
 
-
-export const createUpdateProduct = async( formData: FormData ) => {
-
-  const data = Object.fromEntries( formData );
-  const productParsed = productSchema.safeParse( data );
-
-  if ( !productParsed.success) {
-    console.log( productParsed.error );
-    return { ok: false }
+export async function createUpdateProduct(raw: ProductFormData) {
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.errors[0]?.message ?? 'Datos inválidos' };
   }
 
-  const product = productParsed.data;
-  product.slug = product.slug.toLowerCase().replace(/ /g, '-' ).trim();
-
-
-  const { id, ...rest } = product;
+  const { id, tags, slug, ...data } = parsed.data;
+  const normalizedSlug = slug.toLowerCase().replace(/\s+/g, '-').trim();
+  const tagsArray = tags
+    ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
+    : [];
 
   try {
-    const prismaTx = await prisma.$transaction( async (tx) => {
-  
-      let product: Product;
-      const tagsArray = rest.tags.split(',').map( tag => tag.trim().toLowerCase() );
-  
-      if ( id ) {
-        // Actualizar
-        product = await prisma.product.update({
-          where: { id },
-          data: {
-            ...rest,
-            tags: { set: tagsArray }
-          }
-        });
-
-      } else {
-        // Crear
-        product = await prisma.product.create({
-          data: {
-            ...rest,
-            tags: { set: tagsArray }
-          }
-        })
-      }
-      // Proceso de carga y guardado de imagenes
-      // Recorrer las imagenes y guardarlas
-      if ( formData.getAll('images') ) {
-        // [https://url.jpg, https://url.jpg]
-        const images = await uploadImages(formData.getAll('images') as File[]);
-        if ( !images ) {
-          throw new Error('No se pudo cargar las imágenes, rollingback');
-        }
-
-        await prisma.productImage.createMany({
-          data: images.map( image => ({
-            url: image!,
-            productId: product.id,
-          }))
-        });
-
-      }
-      return {
-        product
-      }
-    });
-
-
-    // Todo: RevalidatePaths
+    if (id) {
+      await prisma.product.update({
+        where: { id },
+        data: { ...data, slug: normalizedSlug, tags: { set: tagsArray } },
+      });
+    } else {
+      await prisma.product.create({
+        data: { ...data, slug: normalizedSlug, tags: { set: tagsArray } },
+      });
+    }
     revalidatePath('/admin/products');
-    revalidatePath(`/admin/product/${ product.slug }`);
-    revalidatePath(`/products/${ product.slug }`);
-
-
-    return {
-      ok: true,
-      product: prismaTx.product,
+    revalidatePath('/');
+    revalidatePath(`/products/${normalizedSlug}`);
+    return { ok: true };
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return { ok: false, message: 'Ya existe un producto con ese serial' };
     }
-
-    
-  } catch (error) {
-    
-    return {
-      ok: false,
-      message: 'Revisar los logs, no se pudo actualizar/crear'
-    }
+    return { ok: false, message: 'Error al guardar el producto' };
   }
-
-}
-
-
-
-const uploadImages = async( images: File[] ) => {
-
-  try {
-
-    const uploadPromises = images.map( async( image) => {
-
-      try {
-        const buffer = await image.arrayBuffer();
-        const base64Image = Buffer.from(buffer).toString('base64');
-  
-        return cloudinary.uploader.upload(`data:image/png;base64,${ base64Image }`)
-          .then( r => r.secure_url );
-        
-      } catch (error) {
-        console.log(error);
-        return null;
-      }
-    })
-
-
-    const uploadedImages = await Promise.all( uploadPromises );
-    return uploadedImages;
-
-
-  } catch (error) {
-
-    console.log(error);
-    return null;
-    
-  }
-
-
 }

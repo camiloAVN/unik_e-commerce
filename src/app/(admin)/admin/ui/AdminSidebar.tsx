@@ -10,16 +10,18 @@ import {
   LuClipboardList,
   LuLogOut,
   LuPackage,
+  LuTag,
   LuUser,
   LuUsers,
 } from 'react-icons/lu';
 
 const navItems = [
-  { label: 'Estadísticas',       href: '/admin',            icon: LuChartBar,     exact: true },
-  { label: 'Productos',          href: '/admin/products',   icon: LuPackage },
-  { label: 'Órdenes',            href: '/admin/orders',     icon: LuClipboardList },
-  { label: 'Clientes',           href: '/admin/customers',  icon: LuUsers },
-  { label: 'Usuarios',           href: '/admin/users',      icon: LuUser },
+  { label: 'Estadísticas',  href: '/admin',             icon: LuChartBar,     exact: true },
+  { label: 'Categorías',    href: '/admin/categories',  icon: LuTag },
+  { label: 'Productos',     href: '/admin/products',    icon: LuPackage },
+  { label: 'Órdenes',       href: '/admin/orders',      icon: LuClipboardList },
+  { label: 'Clientes',      href: '/admin/customers',   icon: LuUsers },
+  { label: 'Usuarios',      href: '/admin/users',       icon: LuUser },
 ];
 
 export function AdminSidebar() {

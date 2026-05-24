@@ -1,10 +1,11 @@
-import { LuChartBar, LuClipboardList, LuPackage, LuUser, LuUsers } from 'react-icons/lu';
+import { LuChartBar, LuClipboardList, LuPackage, LuTag, LuUser, LuUsers } from 'react-icons/lu';
 
 const statCards = [
-  { label: 'Productos', icon: LuPackage,      href: '/admin/products',  value: '—' },
-  { label: 'Órdenes',  icon: LuClipboardList, href: '/admin/orders',    value: '—' },
-  { label: 'Clientes', icon: LuUsers,         href: '/admin/customers', value: '—' },
-  { label: 'Usuarios', icon: LuUser,          href: '/admin/users',     value: '—' },
+  { label: 'Categorías', icon: LuTag,           href: '/admin/categories', value: '—' },
+  { label: 'Productos',  icon: LuPackage,       href: '/admin/products',   value: '—' },
+  { label: 'Órdenes',   icon: LuClipboardList,  href: '/admin/orders',     value: '—' },
+  { label: 'Clientes',  icon: LuUsers,          href: '/admin/customers',  value: '—' },
+  { label: 'Usuarios',  icon: LuUser,           href: '/admin/users',      value: '—' },
 ];
 
 export default function AdminDashboard() {
@@ -15,7 +16,7 @@ export default function AdminDashboard() {
         <p className="text-sm text-[#444444] mt-1">Resumen general del negocio</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-10">
         {statCards.map(({ label, icon: Icon, value }) => (
           <div
             key={label}
