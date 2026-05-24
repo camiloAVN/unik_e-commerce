@@ -58,19 +58,4 @@ export const {
   session: {
     strategy: 'jwt',
   },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.data = user;
-      }
-      return token;
-    },
-    async session({ session, token, user }) {
-      // if (token && session.user) {
-      //   session.user.id = token.id as string;
-      // }
-      session.user = token.data as any;
-      return session;
-    },
-  },
 });

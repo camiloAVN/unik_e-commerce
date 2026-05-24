@@ -12,7 +12,11 @@ async function main() {
   await prisma.user.deleteMany();
   await prisma.country.deleteMany();
   await prisma.productImage.deleteMany();
+  await prisma.productVariantValue.deleteMany();
+  await prisma.productVariant.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.variantValue.deleteMany();
+  await prisma.variantType.deleteMany();
   await prisma.category.deleteMany();
 
   const { categories, products, users } = initialData;

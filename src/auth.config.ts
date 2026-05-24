@@ -6,9 +6,19 @@ export default {
     newUser: '/auth/new-account',
   },
   callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.data = user;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user = token.data as any;
+      return session;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isAdmin = auth?.user?.role === 'admin';
+      const isAdmin = (auth?.user as any)?.role === 'admin';
 
       const path = nextUrl.pathname;
 
