@@ -5,7 +5,7 @@ import { createUpdateProduct, deleteProduct } from '@/actions';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { LuImagePlus, LuPencil, LuPlus, LuTrash2, LuX } from 'react-icons/lu';
+import { LuImagePlus, LuPencil, LuPlus, LuSearch, LuTrash2, LuX } from 'react-icons/lu';
 
 type Product = {
   id: string;
@@ -58,6 +58,27 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<Record<string, string>>({});
+
+  // ── Filters ───────────────────────────────────────────────
+  const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'stock-asc' | 'stock-desc' | 'price-asc' | 'price-desc'>('name');
+
+  const filtered = products
+    .filter(p => {
+      const matchesName = p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.slug.toLowerCase().includes(search.toLowerCase());
+      const matchesCat = filterCategory ? p.categoryId === filterCategory : true;
+      return matchesName && matchesCat;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'stock-asc')  return a.inStock - b.inStock;
+      if (sortBy === 'stock-desc') return b.inStock - a.inStock;
+      if (sortBy === 'price-asc')  return a.price - b.price;
+      if (sortBy === 'price-desc') return b.price - a.price;
+      return a.title.localeCompare(b.title, 'es');
+    });
+  // ─────────────────────────────────────────────────────────
 
   // ── Price calculation ──────────────────────────────────────
   function recalcFromCost(cost: string, pct: string) {
@@ -174,6 +195,7 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
         <div>
           <h1 className="text-2xl font-bold text-[#111111]">Productos</h1>
           <p className="text-sm text-[#444444] mt-1">{products.length} productos registrados</p>
+
         </div>
         <button
           onClick={openNew}
@@ -184,10 +206,50 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
         </button>
       </div>
 
+      {/* Search & filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
+          <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444444]" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por nombre o serial…"
+            className="w-full border border-[#E5E5E5] rounded pl-9 pr-3 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111] bg-white"
+          />
+        </div>
+
+        <select
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          className="border border-[#E5E5E5] rounded px-3 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111] bg-white sm:w-48"
+        >
+          <option value="">Todas las categorías</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as typeof sortBy)}
+          className="border border-[#E5E5E5] rounded px-3 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111] bg-white sm:w-52"
+        >
+          <option value="name">Ordenar: Nombre A–Z</option>
+          <option value="stock-asc">Ordenar: Menor stock primero</option>
+          <option value="stock-desc">Ordenar: Mayor stock primero</option>
+          <option value="price-asc">Ordenar: Menor precio primero</option>
+          <option value="price-desc">Ordenar: Mayor precio primero</option>
+        </select>
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden">
         {products.length === 0 ? (
           <div className="px-6 py-16 text-center text-sm text-[#444444]">No hay productos. Crea el primero.</div>
+        ) : filtered.length === 0 ? (
+          <div className="px-6 py-16 text-center text-sm text-[#444444]">
+            No se encontraron productos con ese filtro.
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -201,7 +263,7 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
               </tr>
             </thead>
             <tbody>
-              {products.map(p => (
+              {filtered.map(p => (
                 <React.Fragment key={p.id}>
                   <tr className="border-t border-[#E5E5E5] hover:bg-[#FAFAFA]">
                     <td className="px-4 py-3">
@@ -266,6 +328,13 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
           </table>
         )}
       </div>
+
+      {/* Result count */}
+      {products.length > 0 && (search || filterCategory) && (
+        <p className="text-xs text-[#444444] mt-2">
+          {filtered.length} de {products.length} productos
+        </p>
+      )}
 
       {/* Drawer overlay */}
       {isOpen && (
