@@ -1,7 +1,7 @@
 export const revalidate = 60 // se relavida cada 60 seg
 
 import { getPaginationProductWithImages } from "@/actions";
-import { Pagination, ProductGrid, Title } from "@/components";
+import { FeatureBadges, FeaturedCategories, HeroSlideshow, Pagination, ProductGrid, Title } from "@/components";
 import { redirect } from "next/navigation";
 
 
@@ -27,22 +27,25 @@ export default async function Home({searchParams}:Props) {
 
   return (
     <>
-    <div className="p-3 flex justify-center items-center -mt-23">
-      <div className="w-full h-[500px] flex justify-center items-center rounded-4xl bg-gray-600">
-        <h1>Bienvenido</h1>
-
+      {/* Hero — break out of the layout's side padding */}
+      <div className="-mx-5 sm:-mx-10">
+        <HeroSlideshow />
       </div>
-    </div>
 
-    <Title
-      title="Tienda"
-      subtitle="Todos los products"
-      className="mb-2 text-white"
-    />
-    <ProductGrid products={products}/>
+      {/* Feature badges */}
+      <FeatureBadges />
 
-    <Pagination totalPages={totalPages}/>
+      {/* Featured categories */}
+      <FeaturedCategories />
 
+      <Title
+        title="Tienda"
+        subtitle="Todos los productos"
+        className="mt-8 mb-2"
+      />
+      <ProductGrid products={products} />
+
+      <Pagination totalPages={totalPages} />
     </>
   );
 }

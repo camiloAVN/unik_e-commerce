@@ -1,5 +1,8 @@
 
 export * from './ui/top-menu/TopMenu';
+export * from './ui/hero/HeroSlideshow';
+export * from './ui/feature-badges/FeatureBadges';
+export * from './ui/featured-categories/FeaturedCategories';
 export * from './ui/not-found/PageNotFound';
 export * from './ui/side-bar/SideBar'
 export * from './ui/title/Title';

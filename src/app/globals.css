@@ -21,3 +21,8 @@ input::-webkit-credentials-auto-fill-button,
 input::-webkit-password-reveal {
   display: none !important;
 }
+
+@keyframes heroProgressBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
