@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   LuShoppingCart,
@@ -104,8 +105,15 @@ export const TopMenu = () => {
         <div className="max-w-7xl mx-auto h-full px-5 sm:px-10 flex items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold tracking-tight text-[#111111]">
-            UNIK
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <Image
+              src="/imgs/logo.png"
+              alt="UNIK"
+              height={36}
+              width={110}
+              className="h-7 sm:h-8 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Desktop nav links */}

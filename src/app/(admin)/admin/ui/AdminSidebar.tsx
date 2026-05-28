@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import Image from 'next/image';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -30,9 +31,18 @@ export function AdminSidebar() {
   return (
     <aside className="fixed top-0 left-0 h-screen w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-50">
       {/* Logo */}
-      <div className="h-[60px] px-6 flex items-center gap-2.5 border-b border-[#E5E5E5] flex-shrink-0">
-        <span className="text-xl font-bold tracking-tight text-[#111111]">UNIK</span>
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#D61C1C] bg-red-50 px-1.5 py-0.5 rounded">
+      <div className="h-[60px] px-5 flex items-center gap-2.5 border-b border-[#E5E5E5] flex-shrink-0">
+        <Link href="/admin" className="flex items-center">
+          <Image
+            src="/imgs/logo.png"
+            alt="UNIK"
+            height={32}
+            width={100}
+            className="h-7 w-auto object-contain"
+            priority
+          />
+        </Link>
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#D61C1C] bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">
           Admin
         </span>
       </div>

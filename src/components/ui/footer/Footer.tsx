@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export const Footer = () => {
@@ -5,8 +6,14 @@ export const Footer = () => {
     <footer className="border-t border-[#E5E5E5] mt-16">
       <div className="max-w-7xl mx-auto px-5 sm:px-10 py-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/" className="text-base font-bold tracking-tight text-[#111111]">
-            UNIK
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <Image
+              src="/imgs/logo.png"
+              alt="UNIK"
+              height={32}
+              width={100}
+              className="h-7 w-auto object-contain"
+            />
           </Link>
 
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
