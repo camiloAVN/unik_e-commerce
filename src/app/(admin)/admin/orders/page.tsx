@@ -1,17 +1,28 @@
-import { LuClipboardList } from 'react-icons/lu';
+import prisma from '@/lib/prisma';
+import { OrdersClient } from './ui/OrdersClient';
 
-export default function AdminOrdersPage() {
-  return (
-    <>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#111111]">Órdenes</h1>
-        <p className="text-sm text-[#444444] mt-1">Historial y gestión de pedidos</p>
-      </div>
+export default async function AdminOrdersPage() {
+  const orders = await prisma.order.findMany({
+    where: { isPaid: true },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true, email: true } },
+      orderAddress: {
+        include: { country: { select: { name: true } } },
+      },
+      orderItems: {
+        include: {
+          product: {
+            select: {
+              title: true,
+              slug: true,
+              images: { take: 1, select: { url: true } },
+            },
+          },
+        },
+      },
+    },
+  });
 
-      <div className="bg-white rounded-lg border border-[#E5E5E5] px-6 py-16 flex flex-col items-center justify-center text-center gap-3">
-        <LuClipboardList className="w-10 h-10 text-[#E5E5E5]" />
-        <p className="text-sm font-medium text-[#444444]">El listado de órdenes aparecerá aquí</p>
-      </div>
-    </>
-  );
+  return <OrdersClient orders={orders} />;
 }
