@@ -34,11 +34,11 @@ export function AdminSidebar() {
       <div className="h-[60px] px-5 flex items-center gap-2.5 border-b border-[#E5E5E5] flex-shrink-0">
         <Link href="/admin" className="flex items-center">
           <Image
-            src="/imgs/logo.png"
+            src="/imgs/logo_2.png"
             alt="UNIK"
-            height={32}
-            width={100}
-            className="h-7 w-auto object-contain"
+            height={44}
+            width={140}
+            className="h-9 w-auto object-contain"
             priority
           />
         </Link>

@@ -107,11 +107,11 @@ export const TopMenu = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0">
             <Image
-              src="/imgs/logo.png"
+              src="/imgs/logo_2.png"
               alt="UNIK"
-              height={36}
-              width={110}
-              className="h-7 sm:h-8 w-auto object-contain"
+              height={48}
+              width={150}
+              className="h-9 sm:h-11 w-auto object-contain"
               priority
             />
           </Link>

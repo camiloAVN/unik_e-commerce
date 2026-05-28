@@ -8,11 +8,11 @@ export const Footer = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center flex-shrink-0">
             <Image
-              src="/imgs/logo.png"
+              src="/imgs/logo_2.png"
               alt="UNIK"
-              height={32}
-              width={100}
-              className="h-7 w-auto object-contain"
+              height={44}
+              width={140}
+              className="h-9 w-auto object-contain"
             />
           </Link>
 
