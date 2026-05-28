@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { LoginForm } from "./ui/LoginForm";
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{ redirectTo?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { redirectTo } = await searchParams;
+
   return (
     <div className="w-full">
       <div className="mb-8">
@@ -9,7 +15,7 @@ export default function LoginPage() {
         <p className="mt-1.5 text-sm text-[#444444]">Ingresa a tu cuenta UNIK</p>
       </div>
 
-      <LoginForm />
+      <LoginForm redirectTo={redirectTo} />
 
       <p className="mt-6 text-sm text-[#444444]">
         ¿No tienes cuenta?{" "}

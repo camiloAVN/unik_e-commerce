@@ -1,124 +1,169 @@
 'use client';
 
 import { placeOrder } from "@/actions";
-import { useAddressStore, useCartStore } from "@/store";
+import { useCartStore } from "@/store";
 import { currencyFormat } from "@/utils";
+import type { Address } from "@/interfaces";
 import clsx from "clsx";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { LuShoppingCart } from "react-icons/lu";
+import { LuMapPin, LuCircleAlert, LuLock } from "react-icons/lu";
 
-export const PlaceOrder = () => {
+interface Props {
+    userAddress: Partial<Address>;
+}
+
+export const PlaceOrder = ({ userAddress }: Props) => {
 
     const router = useRouter();
-
     const [loaded, setLoaded] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-    const address = useAddressStore(state => state.address);
 
     const cart = useCartStore(state => state.cart);
-    const clearCart = useCartStore(state =>state.clearCart);
+    const clearCart = useCartStore(state => state.clearCart);
 
     const { subTotal, tax, total, itemsInCart } = useMemo(() => {
-    const subTotal = cart.reduce((acc, p) => acc + p.quantity * p.price, 0);
-    const tax = subTotal * 0.10;
-    const total = subTotal + tax;
-    const itemsInCart = cart.reduce((acc, p) => acc + p.quantity, 0);
-    return { subTotal, tax, total, itemsInCart };
+        const subTotal = cart.reduce((acc, p) => acc + p.quantity * p.price, 0);
+        const tax = subTotal * 0.15;
+        const total = subTotal + tax;
+        const itemsInCart = cart.reduce((acc, p) => acc + p.quantity, 0);
+        return { subTotal, tax, total, itemsInCart };
     }, [cart]);
 
+    useEffect(() => { setLoaded(true); }, []);
 
-    useEffect(()=>{
-        setLoaded(true)
-    },[])
-
-    if(!loaded){
-        return <p>Cargando...</p>
+    if (!loaded) {
+        return (
+            <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-pulse">
+                    <div className="h-4 w-40 bg-gray-100 rounded mb-4" />
+                    <div className="space-y-2">
+                        <div className="h-3 bg-gray-100 rounded w-full" />
+                        <div className="h-3 bg-gray-100 rounded w-3/4" />
+                        <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    </div>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-pulse">
+                    <div className="h-32 bg-gray-100 rounded-xl" />
+                </div>
+            </div>
+        );
     }
 
-    const onPlaceOrder = async()=>{
+    const onPlaceOrder = async () => {
         setIsPlacingOrder(true);
+        setErrorMessage('');
 
-        const productsToOrder = cart.map(product =>({
+        const productsToOrder = cart.map(product => ({
             productId: product.id,
             quantity: product.quantity,
-            size: product.size,
-        }))
-        console.log({address, productsToOrder});
+            variantId: product.variantId,
+            variantLabel: product.variantLabel,
+        }));
+
+        const address: Address = {
+            firstName: userAddress.firstName ?? '',
+            lastName: userAddress.lastName ?? '',
+            address: userAddress.address ?? '',
+            address2: userAddress.address2 ?? '',
+            postalCode: userAddress.postalCode ?? '',
+            city: userAddress.city ?? '',
+            country: userAddress.country ?? 'CO',
+            phone: userAddress.phone ?? '',
+        };
 
         const resp = await placeOrder(productsToOrder, address);
-        
-        if(!resp.ok){
+
+        if (!resp.ok) {
             setIsPlacingOrder(false);
-            setErrorMessage(resp.message);
+            setErrorMessage(resp.message ?? 'Ocurrió un error al procesar el pedido.');
             return;
         }
 
         clearCart();
-        router.replace('/orders/' + resp.order?.id)
+        router.replace('/orders/' + resp.order?.id);
+    };
 
-    }
+    return (
+        <div className="space-y-4">
 
-  return (
-    <div>
-        <div className="bg-white/95 backdrop-blur-lg rounded-xl sm:rounded-2xl p-3 sm:p-6 border border-gray-100/50 shadow-xl">
-            <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-            <div className="w-8 h-8 bg-gradient-to-br from-lime-400 to-emerald-500 rounded-lg flex items-center justify-center">
-                <LuShoppingCart className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800">Customer information</h2>
-            </div>
-            <div>
-                <p className="font-semibold">{address.firstName} {address.lastName}</p>
-                <p>{address.address}</p>
-                <p>{address.address2}</p>
-                <p>{address.postalCode}</p>
-                <p>{address.city}, {address.country}</p>
-                <p>{address.phone}</p>
-            </div>
-
-            {/* Totals */}
-            <div className="border-t border-gray-200 pt-3 sm:pt-4 space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-                <div className="flex justify-between text-gray-600">
-                    <span>Cantidad de productos</span>
-                    <span>{itemsInCart }</span>
+            {/* Dirección de entrega */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                        <LuMapPin className="w-4 h-4 text-[#D61C1C] flex-shrink-0" />
+                        <h2 className="text-sm font-semibold text-[#111111]">Dirección de entrega</h2>
+                    </div>
+                    <Link
+                        href="/checkout/address"
+                        className="text-xs text-[#D61C1C] hover:underline font-medium"
+                    >
+                        Editar
+                    </Link>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
-                    <span>{currencyFormat(subTotal)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                    <span>Tax (10%)</span>
-                    <span>{currencyFormat(tax)}</span>
-                </div>
-                <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold text-gray-800">
-                    <span>Total</span>
-                    <span>{currencyFormat(total)}</span>
+                <div className="text-sm text-[#444444] space-y-0.5 pl-6">
+                    <p className="font-semibold text-[#111111]">
+                        {userAddress.firstName} {userAddress.lastName}
+                    </p>
+                    <p>
+                        {userAddress.address}
+                        {userAddress.address2 ? `, ${userAddress.address2}` : ''}
+                    </p>
+                    <p>{userAddress.city}, {userAddress.postalCode}</p>
+                    <p>Colombia</p>
+                    <p>{userAddress.phone}</p>
                 </div>
             </div>
 
-            <p className="text-red-400 mb-2">{errorMessage}</p>
+            {/* Resumen y botón */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <h2 className="text-sm font-semibold text-[#111111] mb-4">Resumen del pedido</h2>
 
-            {/* Complete Order Button */}
-            <button 
-                disabled={isPlacingOrder}
-                onClick={()=>onPlaceOrder()}
-                className={
-                    clsx({
-                        "w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-white py-4 rounded-xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-lime-400/25 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 mb-3 sm:mb-4": !isPlacingOrder,
-                        "w-full bg-gray-500 text-white py-4 rounded-xl font-semibold text-base sm:text-lg shadow-lg mb-3 sm:mb-4": isPlacingOrder
-                    })
-                }
-            >
-                Complete Order
-            </button>
+                <div className="space-y-2.5">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-[#444444]">
+                            {itemsInCart === 1 ? '1 producto' : `${itemsInCart} productos`}
+                        </span>
+                        <span className="text-[#111111]">{currencyFormat(subTotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-[#444444]">Impuesto (15%)</span>
+                        <span className="text-[#111111]">{currencyFormat(tax)}</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold text-[#111111] pt-3 border-t border-gray-200">
+                        <span>Total</span>
+                        <span>{currencyFormat(total)}</span>
+                    </div>
+                </div>
 
-            <p className="text-xs text-gray-500 text-center leading-relaxed">
-            By completing your order, you agree to our Terms of Service and Privacy Policy
-            </p>
+                {errorMessage && (
+                    <div className="mt-4 flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl">
+                        <LuCircleAlert className="w-4 h-4 text-[#D61C1C] flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-[#D61C1C]">{errorMessage}</p>
+                    </div>
+                )}
+
+                <button
+                    disabled={isPlacingOrder || cart.length === 0}
+                    onClick={onPlaceOrder}
+                    className={clsx(
+                        "mt-5 w-full py-3.5 rounded-xl font-semibold text-sm transition-colors",
+                        isPlacingOrder || cart.length === 0
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-[#D61C1C] hover:bg-[#b81818] text-white"
+                    )}
+                >
+                    {isPlacingOrder ? 'Procesando pedido...' : 'Completar pedido'}
+                </button>
+
+                <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[#888]">
+                    <LuLock className="w-3 h-3" />
+                    <span>Pago seguro — al continuar aceptas nuestros términos.</span>
+                </div>
+            </div>
+
         </div>
-
-    </div>
-  )
-}
+    );
+};

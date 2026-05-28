@@ -2,6 +2,7 @@
 
 import { LuShoppingCart, LuX } from "react-icons/lu";
 import { useUIStore } from "@/store/ui/ui-store";
+import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import Link from "next/link";
 import { ProductsInCart } from "../ui/ProductsInCart";
@@ -10,6 +11,11 @@ import { OrderSummary } from "../ui/OrderSummary";
 export const CartModal = () => {
   const isCartOpen = useUIStore(state => state.isCartOpen);
   const closeCart = useUIStore(state => state.closeCart);
+  const { data: session } = useSession();
+
+  const checkoutHref = session?.user
+    ? "/checkout/address"
+    : "/auth/login?redirectTo=/checkout/address";
 
   return (
     <div>
@@ -52,7 +58,7 @@ export const CartModal = () => {
           <OrderSummary />
 
           <Link
-            href="/checkout/address"
+            href={checkoutHref}
             onClick={closeCart}
             className="mt-4 block w-full bg-[#D61C1C] hover:bg-[#b81818] text-white text-sm font-semibold text-center py-3 rounded transition-colors"
           >

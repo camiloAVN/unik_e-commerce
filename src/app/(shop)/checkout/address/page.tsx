@@ -1,32 +1,28 @@
 
 import { Title } from '@/components';
 import { AddressForm } from './ui/AddressForm';
-import { getCountries, getUserAddress } from '@/actions';
+import { getUserAddress } from '@/actions';
 import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
 export default async function AddressPage() {
 
-  const countries = await getCountries();
-
   const session = await auth();
 
-  if(!session?.user){
-    return(
-      <h3 className='text-5xl'>500 - no hay session de usuario</h3>
-    )
+  if (!session?.user) {
+    redirect('/auth/login?redirectTo=/checkout/address');
   }
 
   const userAddress = await getUserAddress(session.user.id) ?? undefined;
 
   return (
-    <div className="flex flex-col sm:justify-center sm:items-center mb-72 px-10 sm:px-0 text-white">
-
-      <div className="w-full  xl:w-[1000px] flex flex-col justify-center text-left">
-        
+    <div className="flex flex-col items-center mb-20 px-4 sm:px-0 py-6">
+      <div className="w-full xl:w-[800px]">
         <Title title="Dirección" subtitle="Dirección de entrega" />
-        <AddressForm countries={countries} userStoreAddress={userAddress}/>
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 shadow-sm">
+          <AddressForm userStoreAddress={userAddress} />
+        </div>
       </div>
-
     </div>
   );
 }

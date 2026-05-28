@@ -27,6 +27,7 @@ export * from './user/get-paginated-users'
 export * from './user/change-user-role'
 export * from './user/create-update-admin-user'
 export * from './user/delete-admin-user'
+export * from './user/update-user-profile'
 
 export * from './country/get-countries'
 

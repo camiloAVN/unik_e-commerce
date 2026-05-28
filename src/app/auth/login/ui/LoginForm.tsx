@@ -5,13 +5,17 @@ import { LuMail, LuLock, LuEye, LuEyeOff, LuCircleAlert } from "react-icons/lu";
 import { login } from "@/actions";
 import clsx from "clsx";
 
-export const LoginForm = () => {
+interface Props {
+  redirectTo?: string;
+}
+
+export const LoginForm = ({ redirectTo = "/" }: Props) => {
   const [errorMessage, formAction, isPending] = useActionState(login, undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (errorMessage === "Success") {
-      window.location.replace("/");
+      window.location.replace(redirectTo);
     }
   }, [errorMessage]);
 
