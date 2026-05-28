@@ -17,7 +17,7 @@ export default function CartPage () {
 
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * 3), 0);
-  const tax = subtotal * 0.1;
+  const tax = subtotal * 0.19;
   const total = subtotal + tax;
 
   return (
@@ -242,7 +242,7 @@ export default function CartPage () {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 text-sm sm:text-base">
-                  <span>Tax (10%)</span>
+                  <span>IVA (19%)</span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-800 pt-2 sm:pt-3 border-t border-gray-200">

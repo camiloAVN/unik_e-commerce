@@ -359,7 +359,7 @@ export function OrdersClient({ orders }: { orders: Order[] }) {
                     <span>{currencyFormat(selected.subTotal)}</span>
                   </div>
                   <div className="flex justify-between text-[#444444]">
-                    <span>Impuestos (15%)</span>
+                    <span>IVA (19%)</span>
                     <span>{currencyFormat(selected.tax)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-[#111111] text-base pt-2 border-t border-[#E5E5E5]">

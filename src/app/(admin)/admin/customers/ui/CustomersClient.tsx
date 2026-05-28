@@ -313,7 +313,7 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
                                 <span>Subtotal</span><span>{formatCOP(order.subTotal)}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Impuestos (15%)</span><span>{formatCOP(order.tax)}</span>
+                                <span>IVA (19%)</span><span>{formatCOP(order.tax)}</span>
                               </div>
                               <div className="flex justify-between font-semibold text-[#111111] pt-1 border-t border-[#E5E5E5]">
                                 <span>Total</span><span>{formatCOP(order.total)}</span>

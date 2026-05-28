@@ -58,9 +58,6 @@ export const ProductsInCart = () => {
                             <h3 className="font-semibold text-gray-800 mb-1">{item.title}</h3>
                         </Link>
 
-                        <span className="inline-block px-2 py-1 bg-lime-100 text-lime-700 text-xs rounded-md font-medium">
-                        {/* {item.gender} */}
-                        </span>
                     </div>
                     </div>
 
@@ -73,10 +70,10 @@ export const ProductsInCart = () => {
 
                     <div className="flex items-center space-x-3">
                         <span className="font-bold text-lg text-gray-800">
-                        ${currencyFormat(item.price)}
+                        {currencyFormat(item.price * item.quantity)}
                         </span>
 
-                        <button 
+                        <button
                             className="w-8 h-8 rounded-lg bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors"
                             onClick={()=>removeProduct(item)}
                         >

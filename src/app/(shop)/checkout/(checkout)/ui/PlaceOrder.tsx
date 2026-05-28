@@ -26,7 +26,7 @@ export const PlaceOrder = ({ userAddress }: Props) => {
 
     const { subTotal, tax, total, itemsInCart } = useMemo(() => {
         const subTotal = cart.reduce((acc, p) => acc + p.quantity * p.price, 0);
-        const tax = subTotal * 0.15;
+        const tax = subTotal * 0.19;
         const total = subTotal + tax;
         const itemsInCart = cart.reduce((acc, p) => acc + p.quantity, 0);
         return { subTotal, tax, total, itemsInCart };
@@ -129,7 +129,7 @@ export const PlaceOrder = ({ userAddress }: Props) => {
                         <span className="text-[#111111]">{currencyFormat(subTotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <span className="text-[#444444]">Impuesto (15%)</span>
+                        <span className="text-[#444444]">IVA (19%)</span>
                         <span className="text-[#111111]">{currencyFormat(tax)}</span>
                     </div>
                     <div className="flex justify-between text-base font-bold text-[#111111] pt-3 border-t border-gray-200">
