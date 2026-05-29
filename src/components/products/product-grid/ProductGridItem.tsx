@@ -58,11 +58,9 @@ export const ProductGridItem = ({ product }: Props) => {
         />
 
         {outOfStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-white text-xs font-semibold tracking-wider uppercase px-3 py-1 bg-black/60 rounded">
-              Sin stock
-            </span>
-          </div>
+          <span className="absolute top-2 left-2 z-10 bg-[#D61C1C] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+            Sin stock
+          </span>
         )}
       </Link>
 

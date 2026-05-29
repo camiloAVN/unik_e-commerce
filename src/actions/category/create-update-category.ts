@@ -9,7 +9,9 @@ const schema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100),
   slug: z.string().min(1, 'El slug es requerido').max(100),
   description: z.string().default(''),
+  imageUrl: z.string().optional(),
   isActive: z.boolean().default(true),
+  isFeatured: z.boolean().default(false),
   sortOrder: z.number().int().default(0),
 });
 

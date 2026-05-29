@@ -19,6 +19,7 @@ model Category {
   description String?
   imageUrl    String?
   isActive    Boolean   @default(true)
+  isFeatured  Boolean   @default(false)
   sortOrder   Int       @default(0)
   products    Product[]
 }

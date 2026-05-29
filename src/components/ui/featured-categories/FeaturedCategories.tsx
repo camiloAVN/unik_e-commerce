@@ -6,8 +6,8 @@ import { getCategories } from '@/actions';
 export async function FeaturedCategories() {
   const all = await getCategories();
 
-  const categories = (all as { id: string; name: string; slug: string; imageUrl: string | null; isActive: boolean; sortOrder: number }[])
-    .filter(c => c.isActive)
+  const categories = (all as { id: string; name: string; slug: string; imageUrl: string | null; isActive: boolean; isFeatured: boolean; sortOrder: number }[])
+    .filter(c => c.isActive && c.isFeatured)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   if (categories.length === 0) return null;

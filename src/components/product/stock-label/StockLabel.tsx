@@ -1,47 +1,34 @@
-"use client";
+'use client';
 
-import { getStockBySlug } from "@/actions";
-import { titleFont } from "@/config/fonts";
-import { useEffect, useState } from "react";
+import { getStockBySlug } from '@/actions';
+import { useEffect, useState } from 'react';
 
-interface Props{
-    slug?:string;
+interface Props {
+  slug?: string;
 }
 
-
-export const StockLabel = ({slug}:Props) => {
-
+export const StockLabel = ({ slug }: Props) => {
   const [stock, setStock] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(()=>{
-    getStock();
+  useEffect(() => {
+    getStockBySlug(slug).then(s => {
+      setStock(s);
+      setIsLoading(false);
+    });
+  }, []);
 
-  },[])
-
-  const getStock = async()=>{
-    const inStock = await getStockBySlug(slug);
-    setStock(inStock);
-    setIsLoading(false);
-
+  if (isLoading) {
+    return <div className="h-6 w-24 bg-[#E5E5E5] animate-pulse rounded-full mb-4" />;
   }
-    
+
   return (
-
-    <>
-    {
-      isLoading ?(
-          <h1 className={`${titleFont.className} antialiased font-bold text-xl bg-gray-300 animate-pulse`}>
-            <p>&nbsp;</p>
-          </h1>
-      ):(
-        <h1 className={`${titleFont.className} antialiased font-bold text-xl`}>
-            Stock: {stock}
-        </h1>
-
-      )
-    }
-    </>
-
-  )
-}
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4 border ${
+      stock > 0
+        ? 'bg-green-50 text-green-700 border-green-200'
+        : 'bg-red-50 text-[#D61C1C] border-red-200'
+    }`}>
+      {stock > 0 ? `En stock: ${stock}` : 'Sin stock'}
+    </span>
+  );
+};
