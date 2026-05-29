@@ -3,6 +3,7 @@
 import { PayPalOrderStatusResponse } from "@/interfaces";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendOrderEmails } from "@/actions/order/send-order-emails";
 
 export const paypalCheckPayment = async (paypalTransactionId: string) => {
 
@@ -44,6 +45,9 @@ export const paypalCheckPayment = async (paypalTransactionId: string) => {
             paidAt: new Date()
         }
     });
+
+    // Fire emails without blocking the payment confirmation response
+    sendOrderEmails(orderId).catch(console.error);
 
     revalidatePath(`/orders/${orderId}`);
     return{

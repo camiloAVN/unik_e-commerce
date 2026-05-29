@@ -11,6 +11,7 @@ import {
   LuClipboardList,
   LuLogOut,
   LuPackage,
+  LuSettings,
   LuTag,
   LuUser,
   LuUsers,
@@ -21,8 +22,9 @@ const navItems = [
   { label: 'Categorías',    href: '/admin/categories',  icon: LuTag },
   { label: 'Productos',     href: '/admin/products',    icon: LuPackage },
   { label: 'Órdenes',       href: '/admin/orders',      icon: LuClipboardList },
-  { label: 'Clientes',      href: '/admin/customers',   icon: LuUsers },
-  { label: 'Usuarios',      href: '/admin/users',       icon: LuUser },
+  { label: 'Clientes',       href: '/admin/customers',      icon: LuUsers },
+  { label: 'Usuarios',       href: '/admin/users',          icon: LuUser },
+  { label: 'Configuración',  href: '/admin/configuracion',  icon: LuSettings },
 ];
 
 export function AdminSidebar() {

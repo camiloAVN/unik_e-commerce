@@ -12,6 +12,11 @@ enum Role {
   user
 }
 
+model AppSettings {
+  id         String @id @default("singleton")
+  adminEmail String @default("")
+}
+
 model Category {
   id          String    @id @default(uuid())
   name        String    @unique

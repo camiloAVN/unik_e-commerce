@@ -39,3 +39,6 @@ export * from './category/upload-category-image'
 
 export * from './contact/send-contact-email'
 export * from './product/delete-product'
+
+export * from './settings/get-settings'
+export * from './settings/update-settings'
