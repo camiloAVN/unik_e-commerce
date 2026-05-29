@@ -17,10 +17,12 @@ const schema = z.object({
 
 export type ProductFormData = z.infer<typeof schema>;
 
-export async function createUpdateProduct(raw: ProductFormData) {
+export async function createUpdateProduct(
+  raw: ProductFormData
+): Promise<{ ok: false; message: string } | { ok: true; productId: string }> {
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, message: parsed.error.errors[0]?.message ?? 'Datos inválidos' };
+    return { ok: false, message: parsed.error.issues[0]?.message ?? 'Datos inválidos' };
   }
 
   const { id, tags, slug, ...data } = parsed.data;
@@ -30,20 +32,23 @@ export async function createUpdateProduct(raw: ProductFormData) {
     : [];
 
   try {
+    let productId: string;
     if (id) {
       await prisma.product.update({
         where: { id },
         data: { ...data, slug: normalizedSlug, tags: { set: tagsArray } },
       });
+      productId = id;
     } else {
-      await prisma.product.create({
+      const created = await prisma.product.create({
         data: { ...data, slug: normalizedSlug, tags: { set: tagsArray } },
       });
+      productId = created.id;
     }
     revalidatePath('/admin/products');
     revalidatePath('/');
     revalidatePath(`/products/${normalizedSlug}`);
-    return { ok: true };
+    return { ok: true, productId };
   } catch (error: any) {
     if (error.code === 'P2002') {
       return { ok: false, message: 'Ya existe un producto con ese serial' };

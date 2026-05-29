@@ -3,6 +3,7 @@ export * from './product/get-product-by-slug'
 export * from './product/get-stock-by-slug'
 export * from './product/create-update-product'
 export * from './product/delete-product-image'
+export * from './product/upload-product-image'
 
 export * from './auth/login'
 export * from './auth/logout'

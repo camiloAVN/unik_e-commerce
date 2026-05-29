@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
-import { createUpdateProduct, deleteProduct } from '@/actions';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
+import { createUpdateProduct, deleteProduct, deleteProductImage, uploadProductImage } from '@/actions';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { LuImagePlus, LuPencil, LuPlus, LuSearch, LuTrash2, LuX } from 'react-icons/lu';
+
+type ProductImage = { id: number; url: string };
 
 type Product = {
   id: string;
@@ -17,7 +18,7 @@ type Product = {
   tags: string[];
   categoryId: string;
   category: { id: string; name: string };
-  images: { url: string }[];
+  images: ProductImage[];
 };
 
 type Category = { id: string; name: string };
@@ -59,7 +60,13 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<Record<string, string>>({});
 
-  // ── Filters ───────────────────────────────────────────────
+  // Image state
+  const [savedImages, setSavedImages] = useState<ProductImage[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  // Filters
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'stock-asc' | 'stock-desc' | 'price-asc' | 'price-desc'>('name');
@@ -78,9 +85,8 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
       if (sortBy === 'price-desc') return b.price - a.price;
       return a.title.localeCompare(b.title, 'es');
     });
-  // ─────────────────────────────────────────────────────────
 
-  // ── Price calculation ──────────────────────────────────────
+  // Price calculation
   function recalcFromCost(cost: string, pct: string) {
     const c = parseFloat(cost) || 0;
     const p = parseFloat(pct) || 0;
@@ -102,15 +108,16 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
     const cost = parseFloat(form.baseCost) || 0;
     const amt = parseFloat(value) || 0;
     const pct = cost > 0 ? (amt / cost * 100).toFixed(1) : '';
-    const price = (cost + amt).toFixed(0);
-    setForm(f => ({ ...f, marginAmt: value, marginPct: pct, price }));
+    setForm(f => ({ ...f, marginAmt: value, marginPct: pct, price: (cost + amt).toFixed(0) }));
   }
-  // ──────────────────────────────────────────────────────────
 
   function openNew() {
     setForm(EMPTY_FORM);
     setSlugEdited(false);
     setError('');
+    setSavedImages([]);
+    setPendingFiles([]);
+    setPendingPreviews([]);
     setIsOpen(true);
   }
 
@@ -130,6 +137,9 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
     });
     setSlugEdited(true);
     setError('');
+    setSavedImages(p.images);
+    setPendingFiles([]);
+    setPendingPreviews([]);
     setIsOpen(true);
   }
 
@@ -139,6 +149,24 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
       title: value,
       slug: slugEdited ? f.slug : slugify(value),
     }));
+  }
+
+  function handleImageFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setPendingFiles(prev => [...prev, ...files]);
+    setPendingPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
+
+  function removePending(index: number) {
+    setPendingFiles(prev => prev.filter((_, i) => i !== index));
+    setPendingPreviews(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async function removeSaved(img: ProductImage) {
+    await deleteProductImage(img.id, img.url);
+    setSavedImages(prev => prev.filter(i => i.id !== img.id));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -164,13 +192,23 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
       tags: form.tags,
     });
 
-    setLoading(false);
-
     if (!result.ok) {
       setError(result.message ?? 'Error desconocido');
+      setLoading(false);
       return;
     }
 
+    // Upload pending images
+    if (pendingFiles.length > 0) {
+      for (const file of pendingFiles) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('productId', result.productId);
+        await uploadProductImage(fd);
+      }
+    }
+
+    setLoading(false);
     setIsOpen(false);
     router.refresh();
   }
@@ -195,7 +233,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
         <div>
           <h1 className="text-2xl font-bold text-[#111111]">Productos</h1>
           <p className="text-sm text-[#444444] mt-1">{products.length} productos registrados</p>
-
         </div>
         <button
           onClick={openNew}
@@ -217,7 +254,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
             className="w-full border border-[#E5E5E5] rounded pl-9 pr-3 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111] bg-white"
           />
         </div>
-
         <select
           value={filterCategory}
           onChange={e => setFilterCategory(e.target.value)}
@@ -228,7 +264,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-
         <select
           value={sortBy}
           onChange={e => setSortBy(e.target.value as typeof sortBy)}
@@ -247,9 +282,7 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
         {products.length === 0 ? (
           <div className="px-6 py-16 text-center text-sm text-[#444444]">No hay productos. Crea el primero.</div>
         ) : filtered.length === 0 ? (
-          <div className="px-6 py-16 text-center text-sm text-[#444444]">
-            No se encontraron productos con ese filtro.
-          </div>
+          <div className="px-6 py-16 text-center text-sm text-[#444444]">No se encontraron productos con ese filtro.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -329,7 +362,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
         )}
       </div>
 
-      {/* Result count */}
       {products.length > 0 && (search || filterCategory) && (
         <p className="text-xs text-[#444444] mt-2">
           {filtered.length} de {products.length} productos
@@ -345,7 +377,7 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
       <div
         className={`fixed top-0 right-0 h-full w-full max-w-lg bg-white border-l border-[#E5E5E5] z-50 flex flex-col shadow-xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* Drawer header */}
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5] flex-shrink-0">
           <h2 className="font-semibold text-[#111111]">
             {form.id ? 'Editar producto' : 'Nuevo producto'}
@@ -355,8 +387,71 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
           </button>
         </div>
 
-        {/* Drawer form */}
+        {/* Form */}
         <form id="product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+          {/* Imágenes */}
+          <div>
+            <label className="block text-xs font-semibold text-[#444444] mb-2">Imágenes del producto</label>
+
+            {/* Saved images grid */}
+            {(savedImages.length > 0 || pendingPreviews.length > 0) && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {savedImages.map(img => (
+                  <div key={img.id} className="relative w-16 h-16 rounded overflow-hidden group border border-[#E5E5E5]">
+                    <Image
+                      src={getImageSrc(img.url)}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSaved(img)}
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <LuTrash2 className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                ))}
+                {pendingPreviews.map((preview, i) => (
+                  <div key={`pending-${i}`} className="relative w-16 h-16 rounded overflow-hidden group border border-amber-300">
+                    <img src={preview} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removePending(i)}
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <LuX className="w-4 h-4 text-white" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-amber-400/90 text-white text-[8px] text-center py-0.5 leading-tight">
+                      pendiente
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add image button */}
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="flex items-center gap-2 border border-dashed border-[#E5E5E5] rounded px-4 py-3 text-sm text-[#444444] hover:border-[#D61C1C] hover:text-[#D61C1C] transition-colors w-full justify-center"
+            >
+              <LuImagePlus className="w-4 h-4" />
+              {savedImages.length + pendingPreviews.length > 0 ? 'Agregar más imágenes' : 'Subir imagen'}
+            </button>
+            <p className="text-xs text-[#444444] mt-1">JPG, PNG, WEBP · Puedes subir varias imágenes</p>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleImageFilesChange}
+            />
+          </div>
 
           {/* Nombre */}
           <div>
@@ -416,7 +511,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
           <div className="border border-[#E5E5E5] rounded-lg p-4 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#444444]">Precio</p>
 
-            {/* Precio unitario */}
             <div>
               <label className="block text-xs text-[#444444] mb-1">Precio unitario (costo) *</label>
               <div className="relative">
@@ -432,7 +526,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
               </div>
             </div>
 
-            {/* Margen */}
             <div>
               <label className="block text-xs text-[#444444] mb-1">Margen de ganancia</label>
               <div className="grid grid-cols-2 gap-3">
@@ -462,7 +555,6 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
               <p className="text-xs text-[#444444] mt-1">Edita el % o el valor $ — el otro se actualiza automáticamente</p>
             </div>
 
-            {/* Precio de venta */}
             <div className="bg-[#F8F9FA] rounded p-3 flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#444444]">Precio de venta (en tienda)</p>
@@ -499,23 +591,10 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
             </div>
           </div>
 
-          {/* Imagen (placeholder) */}
-          <div>
-            <label className="block text-xs font-semibold text-[#444444] mb-1.5">Imagen del producto</label>
-            <button
-              type="button"
-              className="flex items-center gap-2 border border-dashed border-[#E5E5E5] rounded px-4 py-3 text-sm text-[#444444] hover:border-[#111111] hover:text-[#111111] transition-colors w-full justify-center"
-            >
-              <LuImagePlus className="w-4 h-4" />
-              Subir imagen
-            </button>
-            <p className="text-xs text-[#444444] mt-1">La carga de imágenes estará disponible próximamente</p>
-          </div>
-
           {error && <p className="text-sm text-[#D61C1C]">{error}</p>}
         </form>
 
-        {/* Drawer footer */}
+        {/* Footer */}
         <div className="flex gap-3 px-6 py-4 border-t border-[#E5E5E5] flex-shrink-0">
           <button
             type="button"

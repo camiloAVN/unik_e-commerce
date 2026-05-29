@@ -6,7 +6,7 @@ export default async function AdminProductsPage() {
     prisma.product.findMany({
       orderBy: { title: 'asc' },
       include: {
-        images: { take: 1, select: { url: true } },
+        images: { select: { id: true, url: true }, orderBy: { id: 'asc' } },
         category: { select: { id: true, name: true } },
       },
     }),

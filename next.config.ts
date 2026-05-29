@@ -1,15 +1,25 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  images:{
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com'
-      }
-    ]
+function getR2Hostname(): string | null {
+  try {
+    const url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+    return url ? new URL(url).hostname : null;
+  } catch {
+    return null;
   }
-  /* config options here */
+}
+
+const r2Hostname = getR2Hostname();
+
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      ...(r2Hostname
+        ? [{ protocol: 'https' as const, hostname: r2Hostname }]
+        : []
+      ),
+    ],
+  },
 };
 
 export default nextConfig;
