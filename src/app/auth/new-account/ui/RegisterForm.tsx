@@ -62,7 +62,12 @@ export const RegisterForm = () => {
           <input
             type="text"
             placeholder="Tu nombre"
-            {...register("name", { required: "El nombre es obligatorio" })}
+            {...register("name", {
+              required: "El nombre es obligatorio",
+              minLength: { value: 2, message: "Mínimo 2 caracteres" },
+              maxLength: { value: 100, message: "Máximo 100 caracteres" },
+            })}
+            maxLength={100}
             className={clsx(inputBase, { [inputError]: errors.name })}
           />
         </div>
@@ -107,10 +112,10 @@ export const RegisterForm = () => {
           <input
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Mínimo 8 caracteres"
             {...register("password", {
               required: "La contraseña es obligatoria",
-              minLength: { value: 6, message: "Mínimo 6 caracteres" },
+              minLength: { value: 8, message: "Mínimo 8 caracteres" },
             })}
             className={clsx(inputBase, "pr-10", { [inputError]: errors.password })}
           />

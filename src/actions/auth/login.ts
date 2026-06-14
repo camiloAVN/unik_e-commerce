@@ -2,6 +2,8 @@
 
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { headers } from 'next/headers';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function login(
   prevState: string | undefined,
@@ -11,6 +13,18 @@ export async function login(
   const password = (formData.get('password') as string);
 
   if (!email || !password) return 'Completa todos los campos';
+
+  const headersList = await headers();
+  const ip =
+    headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    headersList.get('x-real-ip') ??
+    'unknown';
+
+  // 5 intentos por IP+email cada 15 minutos
+  const { allowed } = checkRateLimit(`login:${ip}:${email}`, 5, 15 * 60 * 1000);
+  if (!allowed) {
+    return 'Demasiados intentos fallidos. Espera 15 minutos e inténtalo de nuevo.';
+  }
 
   try {
     await signIn('credentials', { email, password, redirect: false });
@@ -34,8 +48,7 @@ export const loginData = async (email: string, password: string) => {
   try {
     await signIn('credentials', { email, password, redirect: false });
     return { ok: true };
-  } catch (error) {
-    console.log(error);
+  } catch {
     return { ok: false, message: 'No se pudo iniciar sesión' };
   }
 };

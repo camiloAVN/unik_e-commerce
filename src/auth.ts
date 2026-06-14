@@ -5,57 +5,43 @@ import { z } from 'zod';
 import prisma from './lib/prisma';
 import bcrypt from 'bcryptjs';
 
-// Por ahora simulamos la verificación sin DB
 async function getUser(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (!user) return null;
-  if (!user.password) return null; // user created via OAuth, no password
+  if (!user.password) return null; // cuenta creada via OAuth
   if (!bcrypt.compareSync(password, user.password)) return null;
   const { password: _, ...rest } = user;
   return rest;
 }
 
-export const { 
-  auth, 
-  signIn, 
-  signOut, 
-  handlers 
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers
 } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
       async authorize(credentials) {
-        // Validar que lleguen los campos
         const parsedCredentials = z
-          .object({ 
-            email: z.string().email({ message: "Debe ser un email válido" }),
-            password: z.string().min(6)
+          .object({
+            email: z.string().email(),
+            password: z.string().min(6),
           })
           .safeParse(credentials);
-          
 
-        if (!parsedCredentials.success) {
-          console.log('Invalid credentials format');
-          return null;
-        }
+        if (!parsedCredentials.success) return null;
 
         const { email, password } = parsedCredentials.data;
-        console.log('Credentials recibidas:', { email, password });
-        
-        // Buscar usuario 
         const user = await getUser(email, password);
-        
-        if (!user) {
-          console.log('User not found');
-          return null;
-        }
-
-        // Retornar el usuario (sin password)
+        if (!user) return null;
         return user;
       },
     }),
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 horas
   },
 });
