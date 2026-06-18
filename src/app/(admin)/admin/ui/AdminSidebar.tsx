@@ -7,8 +7,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LuArrowLeft,
+  LuBuilding2,
   LuChartBar,
   LuClipboardList,
+  LuFileText,
   LuLogOut,
   LuPackage,
   LuSettings,
@@ -23,6 +25,8 @@ const navItems = [
   { label: 'Productos',     href: '/admin/products',    icon: LuPackage },
   { label: 'Órdenes',       href: '/admin/orders',      icon: LuClipboardList },
   { label: 'Clientes',       href: '/admin/customers',      icon: LuUsers },
+  { label: 'Empresas',       href: '/admin/companies',      icon: LuBuilding2 },
+  { label: 'Cotizaciones',   href: '/admin/quotes',         icon: LuFileText },
   { label: 'Usuarios',       href: '/admin/users',          icon: LuUser },
   { label: 'Configuración',  href: '/admin/configuracion',  icon: LuSettings },
 ];

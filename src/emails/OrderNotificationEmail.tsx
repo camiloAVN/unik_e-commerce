@@ -150,7 +150,7 @@ export function OrderNotificationEmail({
 
             {/* Transaction */}
             <Text style={txText}>
-              ID de transacción PayPal:{' '}
+              ID de transacción Mercado Pago:{' '}
               <span style={{ fontFamily: 'monospace' }}>{transactionId}</span>
             </Text>
 

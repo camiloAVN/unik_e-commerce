@@ -22,7 +22,8 @@ export * from './order/get-paginated-orders'
 export * from './order/update-order-delivery'
 
 export * from './payments/set-transaction-id'
-export * from './payments/paypal-payment'
+export * from './payments/create-payment-preference'
+export * from './payments/process-payment'
 
 export * from './user/get-paginated-users'
 export * from './user/change-user-role'
@@ -39,6 +40,15 @@ export * from './category/upload-category-image'
 
 export * from './contact/send-contact-email'
 export * from './product/delete-product'
+
+export * from './company/get-companies'
+export * from './company/create-update-company'
+export * from './company/delete-company'
+
+export * from './quote/get-quotes'
+export * from './quote/get-quote-form-data'
+export * from './quote/create-update-quote'
+export * from './quote/delete-quote'
 
 export * from './settings/get-settings'
 export * from './settings/update-settings'

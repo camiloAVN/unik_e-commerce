@@ -5,13 +5,14 @@ import { FaCreditCard, FaReceipt, FaShoppingBag } from "react-icons/fa";
 import { FaExclamation } from "react-icons/fa6";
 import { LuCalendar, LuMail, LuMapPin, LuUser, LuClock } from "react-icons/lu";
 import { BsShop } from "react-icons/bs";
-import { PayPalButton, Title } from "@/components";
+import { PaymentBrick, Title } from "@/components";
 import clsx from "clsx";
 
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { currencyFormat } from '@/utils';
 import { getOrderById } from '@/actions';
+import { auth } from '@/auth';
 
 
 interface Props{
@@ -24,6 +25,7 @@ export default async function OrderPage({params}:Props) {
 
     const id= (await params).id;
 
+    const session = await auth();
     const {ok, order} = await getOrderById(id);
 
 
@@ -245,17 +247,18 @@ export default async function OrderPage({params}:Props) {
                 </div>
               </div>
 
-              {/* Paypal */}
+              {/* Pago — Mercado Pago */}
               {
                 order?.isPaid ?(
-                  <div className='flex justify-center items-center bg-green-500 rounded p-2'> 
+                  <div className='flex justify-center items-center bg-green-500 rounded p-2'>
                     <span className="font-semibold text-black mr-2">Pagado</span>
                     <IoCheckmarkCircle className="w-8 h-8 sm:w-6 sm:h-6 text-white" />
                   </div>
-                ):( 
-                  <PayPalButton
+                ):(
+                  <PaymentBrick
                     amount={order!.total}
                     orderId={order!.id}
+                    payerEmail={session?.user?.email ?? undefined}
                   />
                 )
               }

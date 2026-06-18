@@ -12,9 +12,94 @@ enum Role {
   user
 }
 
+enum QuoteStatus {
+  borrador
+  enviada
+  aceptada
+  rechazada
+}
+
 model AppSettings {
   id         String @id @default("singleton")
   adminEmail String @default("")
+
+  // Datos del emisor para las cotizaciones (PDF)
+  quoteIssuerName    String @default("UNIK S.A.S.")
+  quoteIssuerNit     String @default("")
+  quoteIssuerEmail   String @default("")
+  quoteIssuerPhone   String @default("")
+  quoteIssuerAddress String @default("")
+  quoteIssuerWebsite String @default("")
+
+  // Apariencia del PDF de cotización
+  quoteFontFamily  String @default("Helvetica") // Helvetica | Times-Roman | Courier
+  quoteFontSize    Int    @default(9)
+  quoteHeaderColor String @default("#D61C1C")
+}
+
+// Empresas / clientes B2B con los que se trabaja directamente (fuera del e-commerce)
+model Company {
+  id          String  @id @default(uuid())
+  name        String // Razón social / nombre
+  nit         String?
+  email       String?
+  phone       String?
+  contactName String? // Persona de contacto
+  address     String?
+  city        String?
+  notes       String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotes Quote[]
+}
+
+// Cotizaciones asociadas a una empresa/cliente
+model Quote {
+  id        String      @id @default(uuid())
+  number    Int         @unique // consecutivo legible: COT-0001
+  status    QuoteStatus @default(borrador)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  issueDate  DateTime  @default(now())
+  validUntil DateTime?
+
+  // Snapshot de cálculos al momento de crear/editar
+  discountPct    Float @default(0) // porcentaje de descuento
+  subTotal       Float @default(0) // suma de líneas (antes de descuento)
+  discountAmount Float @default(0)
+  taxableBase    Float @default(0) // subTotal - descuento
+  tax            Float @default(0) // IVA 19%
+  total          Float @default(0)
+
+  notes String? // observaciones
+  terms String? // condiciones / términos
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items QuoteItem[]
+
+  @@index([companyId])
+}
+
+model QuoteItem {
+  id          String  @id @default(uuid())
+  description String // título/descripción de la línea (producto o item abierto)
+  quantity    Float   @default(1)
+  unitPrice   Float   @default(0)
+  total       Float   @default(0) // quantity * unitPrice (snapshot)
+  productId   String? // referencia opcional a un Product registrado (sin FK, para conservar historial)
+  sortOrder   Int     @default(0)
+
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
 }
 
 model Category {

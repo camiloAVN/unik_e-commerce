@@ -1,7 +1,8 @@
 "use client";
 
 import {  IoLockClosed } from "react-icons/io5";
-import { FaCreditCard, FaPaypal, FaApplePay, FaGooglePay } from "react-icons/fa";
+import { FaCreditCard, FaApplePay, FaGooglePay } from "react-icons/fa";
+import { SiMercadopago } from "react-icons/si";
 import { LuShoppingCart, LuUser, LuMail, LuPhone, LuMapPin } from "react-icons/lu";
 import { FaAngleLeft } from "react-icons/fa";
 import { initialData } from "@/seed/seed";
@@ -162,8 +163,8 @@ export default function CartPage () {
                   <span className="text-xs font-medium text-lime-700">Card</span>
                 </button>
                 <button className="p-4 border border-gray-200 hover:border-gray-300 rounded-xl flex flex-col items-center space-y-2 transition-all">
-                  <FaPaypal className="w-6 h-6 text-blue-600" />
-                  <span className="text-xs font-medium text-gray-600">PayPal</span>
+                  <SiMercadopago className="w-6 h-6 text-[#009ee3]" />
+                  <span className="text-xs font-medium text-gray-600">Mercado Pago</span>
                 </button>
                 <button className="p-4 border border-gray-200 hover:border-gray-300 rounded-xl flex flex-col items-center space-y-2 transition-all">
                   <FaApplePay className="w-6 h-6 text-gray-800" />

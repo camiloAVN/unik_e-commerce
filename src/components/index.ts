@@ -23,4 +23,4 @@ export * from './cart/cart-modal/CartModal'
 
 export * from './providers/Providers'
 
-export * from './paypal/PayPalButton'
+export * from './mercadopago/PaymentBrick'
