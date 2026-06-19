@@ -1,4 +1,4 @@
-import { CartModal, Footer, SideBar, TopMenu } from "@/components";
+import { CartModal, Footer, SideBar, TopMenu, WhatsAppButton } from "@/components";
 
 
 export default function ShopLayout({children}: Readonly<{children: React.ReactNode;}>) {
@@ -11,6 +11,7 @@ export default function ShopLayout({children}: Readonly<{children: React.ReactNo
         {children}
       </div>
       <Footer/>
+      <WhatsAppButton/>
     </main>
 
   );

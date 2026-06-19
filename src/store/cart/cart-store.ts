@@ -55,7 +55,7 @@ export const useCartStore = create<State>()(
                 console.log(cart)
 
                 const productInCart = cart.some(
-                    (item) => (item.id === product.id && item.size === product.size)
+                    (item) => (item.id === product.id && item.variantId === product.variantId)
                 );
 
                 if(!productInCart){
@@ -63,7 +63,7 @@ export const useCartStore = create<State>()(
                     return;
                 }
                 const updatedCartProducts = cart.map((item)=>{
-                    if(item.id === product.id && item.size === product.size){
+                    if(item.id === product.id && item.variantId === product.variantId){
                         return {...item, quantity: item.quantity + product.quantity}
                     }
                     return item;
@@ -75,7 +75,7 @@ export const useCartStore = create<State>()(
             updateProductQuantity: (product: CartProduct, quantity:number)=>{
                 const {cart} = get();
                 const updatedCartProducts = cart.map(item=>{
-                    if(item.id === product.id && item.size === product.size){
+                    if(item.id === product.id && item.variantId === product.variantId){
                         return {...item, quantity:quantity};
                     }
                     return item;
@@ -85,7 +85,7 @@ export const useCartStore = create<State>()(
             removeProduct:(product: CartProduct)=>{
                 const {cart} = get();
                 const updatedCartProducts = cart.filter(
-                    (item)=> item.id !== product.id || item.size !== product.size
+                    (item)=> item.id !== product.id || item.variantId !== product.variantId
                 );
 
                 set({cart: updatedCartProducts});

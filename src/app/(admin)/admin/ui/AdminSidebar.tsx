@@ -12,6 +12,7 @@ import {
   LuClipboardList,
   LuFileText,
   LuLogOut,
+  LuMail,
   LuPackage,
   LuSettings,
   LuTag,
@@ -27,6 +28,7 @@ const navItems = [
   { label: 'Clientes',       href: '/admin/customers',      icon: LuUsers },
   { label: 'Empresas',       href: '/admin/companies',      icon: LuBuilding2 },
   { label: 'Cotizaciones',   href: '/admin/quotes',         icon: LuFileText },
+  { label: 'Correo',         href: '/admin/correo',         icon: LuMail },
   { label: 'Usuarios',       href: '/admin/users',          icon: LuUser },
   { label: 'Configuración',  href: '/admin/configuracion',  icon: LuSettings },
 ];

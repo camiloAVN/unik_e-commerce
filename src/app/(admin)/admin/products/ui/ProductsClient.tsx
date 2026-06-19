@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { createUpdateProduct, deleteProduct, deleteProductImage, uploadProductImage } from '@/actions';
+import { uploadImageToR2 } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { LuImagePlus, LuPencil, LuPlus, LuSearch, LuTrash2, LuX } from 'react-icons/lu';
 
@@ -198,13 +199,17 @@ export function ProductsClient({ products, categories }: { products: Product[]; 
       return;
     }
 
-    // Upload pending images
+    // Upload pending images (presigned URL → PUT directo a R2 → persistir URL)
     if (pendingFiles.length > 0) {
-      for (const file of pendingFiles) {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('productId', result.productId);
-        await uploadProductImage(fd);
+      try {
+        for (const file of pendingFiles) {
+          const url = await uploadImageToR2(file, 'products');
+          await uploadProductImage({ productId: result.productId, url });
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al subir las imágenes');
+        setLoading(false);
+        return;
       }
     }
 

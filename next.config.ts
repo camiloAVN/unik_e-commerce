@@ -34,7 +34,11 @@ const securityHeaders = [
       // Imágenes propias + R2/Cloudflare + Mercado Pago + data URIs
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://api.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com",
+      // @react-pdf/renderer genera el PDF en un Web Worker creado desde un blob:
+      "worker-src 'self' blob:",
+      // 'self' API Mercado Pago + data:/blob: para el WASM (fontkit/yoga) de @react-pdf
+      // + endpoint S3 de R2 para el PUT directo con presigned URLs (subida de imágenes)
+      "connect-src 'self' data: blob: https://api.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.r2.cloudflarestorage.com",
       "frame-src https://*.mercadopago.com https://*.mercadolibre.com",
       // Bloquea objetos embebidos (Flash, plugins)
       "object-src 'none'",
@@ -57,10 +61,13 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
+      // Host del dominio público configurado (custom domain, p. ej. cdn.unikimportaciones.com)
       ...(r2Hostname
         ? [{ protocol: 'https' as const, hostname: r2Hostname }]
         : []
       ),
+      // Subdominios r2.dev (acceso público del bucket, útil para pruebas y al alternar de URL)
+      { protocol: 'https' as const, hostname: '**.r2.dev' },
     ],
   },
   async headers() {

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { updateSettings } from '@/actions';
 import { LuCircleCheck, LuFileText, LuMail, LuSave, LuType } from 'react-icons/lu';
+import { HeroImagesManager, type HeroImageItem } from './HeroImagesManager';
 
 interface Settings {
   adminEmail: string;
@@ -19,6 +20,7 @@ interface Settings {
 
 interface Props {
   settings: Settings;
+  heroImages: HeroImageItem[];
 }
 
 const FONT_OPTIONS = [
@@ -31,7 +33,7 @@ const inputCls =
   'w-full border border-[#E5E5E5] rounded px-3 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]';
 const labelCls = 'block text-xs font-semibold text-[#444444] mb-1.5';
 
-export function SettingsClient({ settings }: Props) {
+export function SettingsClient({ settings, heroImages }: Props) {
   // ── Sección notificaciones ──
   const [email, setEmail] = useState(settings.adminEmail);
   const [loadingEmail, setLoadingEmail] = useState(false);
@@ -326,6 +328,9 @@ export function SettingsClient({ settings }: Props) {
           </div>
         </form>
       </div>
+
+      {/* Section: Hero / Portada */}
+      <HeroImagesManager images={heroImages} />
 
       {/* Section: Resend status */}
       <div className="mt-4 bg-white rounded-lg border border-[#E5E5E5] overflow-hidden">

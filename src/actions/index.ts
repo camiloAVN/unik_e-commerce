@@ -36,7 +36,8 @@ export * from './country/get-countries'
 export * from './category/get-categories'
 export * from './category/create-update-category'
 export * from './category/delete-category'
-export * from './category/upload-category-image'
+
+export * from './upload/create-upload-url'
 
 export * from './contact/send-contact-email'
 export * from './product/delete-product'
@@ -52,3 +53,12 @@ export * from './quote/delete-quote'
 
 export * from './settings/get-settings'
 export * from './settings/update-settings'
+
+export * from './email/send-custom-email'
+export * from './email/delete-attachment'
+
+export * from './hero/get-hero-images'
+export * from './hero/get-hero-images-admin'
+export * from './hero/create-hero-image'
+export * from './hero/delete-hero-image'
+export * from './hero/update-hero-image'

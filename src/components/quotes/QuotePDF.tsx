@@ -177,7 +177,7 @@ function makeStyles(cfg: QuotePdfStyle) {
   });
 }
 
-const QuoteDocument = ({ data }: { data: QuotePdfData }) => {
+export const QuoteDocument = ({ data }: { data: QuotePdfData }) => {
   const styles = makeStyles(data.style);
   const issuer = data.issuer;
 

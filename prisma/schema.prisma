@@ -37,6 +37,18 @@ model AppSettings {
   quoteHeaderColor String @default("#D61C1C")
 }
 
+// Imágenes de la galería del hero (slideshow de la home), gestionadas desde Configuración
+model HeroImage {
+  id        String   @id @default(uuid())
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([isActive, sortOrder])
+}
+
 // Empresas / clientes B2B con los que se trabaja directamente (fuera del e-commerce)
 model Company {
   id          String  @id @default(uuid())

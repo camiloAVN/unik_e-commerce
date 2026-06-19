@@ -5,16 +5,34 @@ import Image from 'next/image';
 
 const DURATION = 5000;
 
-// Replace `image` null with a real path string when images are ready.
-// e.g. image: '/hero/banner-1.jpg'
-const SLIDES: { id: number; image: string | null; bg: string; alt: string }[] = [
-  { id: 1, image: null, bg: 'linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%)', alt: 'Banner 1' },
-  { id: 2, image: null, bg: 'linear-gradient(135deg,#1c0a0a 0%,#3b1010 100%)', alt: 'Banner 2' },
-  { id: 3, image: null, bg: 'linear-gradient(135deg,#0a0a1c 0%,#10103b 100%)', alt: 'Banner 3' },
-  { id: 4, image: null, bg: 'linear-gradient(135deg,#0a1c0a 0%,#10301a 100%)', alt: 'Banner 4' },
+const BG_GRADIENTS = [
+  'linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%)',
+  'linear-gradient(135deg,#1c0a0a 0%,#3b1010 100%)',
+  'linear-gradient(135deg,#0a0a1c 0%,#10103b 100%)',
+  'linear-gradient(135deg,#0a1c0a 0%,#10301a 100%)',
 ];
 
-export function HeroSlideshow() {
+// Placeholders usados cuando aún no se han subido imágenes desde Configuración.
+const PLACEHOLDER_SLIDES = BG_GRADIENTS.map((bg, i) => ({
+  id: `ph-${i}`,
+  image: null as string | null,
+  bg,
+  alt: `Banner ${i + 1}`,
+}));
+
+export type HeroSlide = { id: string; url: string; alt?: string | null };
+
+export function HeroSlideshow({ slides = [] }: { slides?: HeroSlide[] }) {
+  const SLIDES =
+    slides.length > 0
+      ? slides.map((s, i) => ({
+          id: s.id,
+          image: s.url as string | null,
+          bg: BG_GRADIENTS[i % BG_GRADIENTS.length],
+          alt: s.alt ?? `Banner ${i + 1}`,
+        }))
+      : PLACEHOLDER_SLIDES;
+
   const [current, setCurrent] = useState(0);
   const [barKey, setBarKey] = useState(0);
 

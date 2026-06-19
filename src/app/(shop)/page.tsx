@@ -1,6 +1,6 @@
 export const revalidate = 60 // se relavida cada 60 seg
 
-import { getPaginationProductWithImages } from "@/actions";
+import { getPaginationProductWithImages, getHeroImages } from "@/actions";
 import { FeatureBadges, FeaturedCategories, HeroSlideshow, Pagination, ProductGrid, Title } from "@/components";
 import { redirect } from "next/navigation";
 
@@ -18,7 +18,10 @@ export default async function Home({searchParams}:Props) {
   const params = await searchParams
   const page = params.page ? parseInt(params.page) : 1;
 
-  const {products, currentPage, totalPages}= await getPaginationProductWithImages({page});
+  const [{products, currentPage, totalPages}, heroImages] = await Promise.all([
+    getPaginationProductWithImages({page}),
+    getHeroImages(),
+  ]);
 
   if (products.length === 0){
     redirect('/');
@@ -29,7 +32,7 @@ export default async function Home({searchParams}:Props) {
     <>
       {/* Hero — break out of the layout's side padding */}
       <div className="-mx-5 sm:-mx-10">
-        <HeroSlideshow />
+        <HeroSlideshow slides={heroImages} />
       </div>
 
       {/* Feature badges */}

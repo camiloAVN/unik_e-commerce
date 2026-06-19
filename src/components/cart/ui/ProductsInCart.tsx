@@ -39,7 +39,7 @@ export const ProductsInCart = () => {
         {  productsInCart .map((item) => {
 
             return(
-                <div key={`${item.slug}-${item.size}`} className="bg-gray-50/50 rounded-xl p-4 border border-gray-100 hover:shadow-md transition-all duration-200">
+                <div key={`${item.slug}-${item.variantId ?? ''}`} className="bg-gray-50/50 rounded-xl p-4 border border-gray-100 hover:shadow-md transition-all duration-200">
                     <div className="flex items-start space-x-4">
                     {/* Product Image */}
                     <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center">

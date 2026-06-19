@@ -2,7 +2,8 @@
 
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
-import { createUpdateCategory, deleteCategory, uploadCategoryImage } from '@/actions';
+import { createUpdateCategory, deleteCategory } from '@/actions';
+import { uploadImageToR2 } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { LuImagePlus, LuPencil, LuPlus, LuStar, LuTrash2, LuX } from 'react-icons/lu';
 
@@ -104,15 +105,13 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
     let imageUrl = form.imageUrl;
 
     if (imageFile) {
-      const fd = new FormData();
-      fd.append('file', imageFile);
-      const uploadResult = await uploadCategoryImage(fd);
-      if (!uploadResult.ok) {
-        setError(uploadResult.message ?? 'Error al subir la imagen');
+      try {
+        imageUrl = await uploadImageToR2(imageFile, 'categories');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al subir la imagen');
         setLoading(false);
         return;
       }
-      imageUrl = uploadResult.url;
     }
 
     const result = await createUpdateCategory({
