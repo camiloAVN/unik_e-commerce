@@ -24,10 +24,21 @@ interface BrickFormData {
  * Procesa el cobro con tarjeta de crédito/débito que tokeniza el Payment Brick.
  * Devuelve el estado del pago para que el Brick muestre la pantalla de resultado.
  */
-export const processPayment = async (orderId: string, formData: BrickFormData) => {
+export const processPayment = async (orderId: string, formData: BrickFormData | null) => {
   const session = await auth();
   if (!session?.user) {
     return { ok: false, status: 'rejected', message: 'Debe iniciar sesión' };
+  }
+
+  // El flujo de billetera Mercado Pago no entrega token de tarjeta: se confirma
+  // del lado de MP vía la preferencia + webhook (notification_url), no aquí.
+  if (!formData || !formData.token) {
+    return {
+      ok: false,
+      status: 'rejected',
+      message:
+        'Para pagar con tu cuenta de Mercado Pago usa el botón de billetera; el cobro se confirma automáticamente. Para tarjeta, completa los datos del formulario.',
+    };
   }
 
   const order = await prisma.order.findUnique({
