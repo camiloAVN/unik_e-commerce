@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, FROM_SALES } from '@/lib/resend';
 import { OrderConfirmationEmail } from '@/emails/OrderConfirmationEmail';
 import { OrderNotificationEmail } from '@/emails/OrderNotificationEmail';
 import type { OrderEmailData } from '@/emails/types';
@@ -70,7 +70,7 @@ export async function sendOrderEmails(orderId: string) {
 
     // 1 — Customer confirmation
     await resend.emails.send({
-      from:    FROM_EMAIL,
+      from:    FROM_SALES,
       to:      order.user.email,
       subject: `¡Compra confirmada! Orden #${orderId.slice(-8).toUpperCase()}`,
       react:   <OrderConfirmationEmail {...data} />,
@@ -80,7 +80,7 @@ export async function sendOrderEmails(orderId: string) {
     const adminEmail = settings?.adminEmail?.trim();
     if (adminEmail) {
       await resend.emails.send({
-        from:    FROM_EMAIL,
+        from:    FROM_SALES,
         to:      adminEmail,
         subject: `🛒 Nueva orden #${orderId.slice(-8).toUpperCase()} — ${order.user.name}`,
         react:   (

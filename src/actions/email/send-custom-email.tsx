@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@/auth';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, FROM_MANAGEMENT } from '@/lib/resend';
 import { getR2ObjectBuffer, deleteR2Object } from '@/lib/r2-upload';
 import { renderQuotePdfBuffer } from '@/lib/render-quote-pdf';
 import { getSettings } from '@/actions/settings/get-settings';
@@ -55,7 +55,7 @@ export async function sendCustomEmail(input: SendInput) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
     const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: FROM_MANAGEMENT,
       to,
       bcc: adminEmail || undefined,
       replyTo: settings.quoteIssuerEmail?.trim() || adminEmail || undefined,
