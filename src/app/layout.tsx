@@ -12,6 +12,11 @@ export const metadata: Metadata = {
     default: 'UNIK — Tienda',
   },
   description: 'UNIK — productos importados para Colombia.',
+  icons: {
+    icon: '/imgs/isotipo.png',
+    shortcut: '/imgs/isotipo.png',
+    apple: '/imgs/isotipo.png',
+  },
 };
 
 export default function RootLayout({
