@@ -1,6 +1,7 @@
 'use client';
 
 import { placeOrder } from "@/actions";
+import { PaymentBrick } from "@/components";
 import { useCartStore } from "@/store";
 import { currencyFormat } from "@/utils";
 import type { Address } from "@/interfaces";
@@ -12,14 +13,19 @@ import { LuMapPin, LuCircleAlert, LuLock } from "react-icons/lu";
 
 interface Props {
     userAddress: Partial<Address>;
+    payerEmail?: string;
 }
 
-export const PlaceOrder = ({ userAddress }: Props) => {
+type PlacedOrder = { id: string; total: number };
+
+export const PlaceOrder = ({ userAddress, payerEmail }: Props) => {
 
     const router = useRouter();
     const [loaded, setLoaded] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    // Una vez creada la orden, mostramos el formulario de pago de Mercado Pago.
+    const [placed, setPlaced] = useState<PlacedOrder | null>(null);
 
     const cart = useCartStore(state => state.cart);
     const clearCart = useCartStore(state => state.clearCart);
@@ -76,14 +82,20 @@ export const PlaceOrder = ({ userAddress }: Props) => {
 
         const resp = await placeOrder(productsToOrder, address);
 
-        if (!resp.ok) {
+        if (!resp.ok || !resp.order) {
             setIsPlacingOrder(false);
             setErrorMessage(resp.message ?? 'Ocurrió un error al procesar el pedido.');
             return;
         }
 
+        // No vaciamos el carrito aún: se limpia al confirmarse el pago (ver onPaymentComplete).
+        setPlaced({ id: resp.order.id, total });
+        setIsPlacingOrder(false);
+    };
+
+    const onPaymentComplete = () => {
         clearCart();
-        router.replace('/orders/' + resp.order?.id);
+        router.replace('/orders/' + placed?.id);
     };
 
     return (
@@ -145,23 +157,39 @@ export const PlaceOrder = ({ userAddress }: Props) => {
                     </div>
                 )}
 
-                <button
-                    disabled={isPlacingOrder || cart.length === 0}
-                    onClick={onPlaceOrder}
-                    className={clsx(
-                        "mt-5 w-full py-3.5 rounded-xl font-semibold text-sm transition-colors",
-                        isPlacingOrder || cart.length === 0
-                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            : "bg-[#D61C1C] hover:bg-[#b81818] text-white"
-                    )}
-                >
-                    {isPlacingOrder ? 'Procesando pedido...' : 'Completar pedido'}
-                </button>
+                {placed ? (
+                    <div className="mt-5 border-t border-gray-200 pt-5">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-[#888] mb-3">
+                            Método de pago
+                        </p>
+                        <PaymentBrick
+                            orderId={placed.id}
+                            amount={placed.total}
+                            payerEmail={payerEmail}
+                            onPaymentComplete={onPaymentComplete}
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <button
+                            disabled={isPlacingOrder || cart.length === 0}
+                            onClick={onPlaceOrder}
+                            className={clsx(
+                                "mt-5 w-full py-3.5 rounded-xl font-semibold text-sm transition-colors",
+                                isPlacingOrder || cart.length === 0
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    : "bg-[#D61C1C] hover:bg-[#b81818] text-white"
+                            )}
+                        >
+                            {isPlacingOrder ? 'Procesando pedido...' : 'Continuar al pago'}
+                        </button>
 
-                <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[#888]">
-                    <LuLock className="w-3 h-3" />
-                    <span>Pago seguro — al continuar aceptas nuestros términos.</span>
-                </div>
+                        <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[#888]">
+                            <LuLock className="w-3 h-3" />
+                            <span>Pago seguro — al continuar aceptas nuestros términos.</span>
+                        </div>
+                    </>
+                )}
             </div>
 
         </div>

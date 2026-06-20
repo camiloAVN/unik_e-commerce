@@ -28,18 +28,18 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js requiere unsafe-inline/unsafe-eval para hydration.
-      // Mercado Pago: SDK + recursos del Payment Brick.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com",
+      // Mercado Pago: SDK + recursos del Payment Brick (assets servidos desde *.mlstatic.com).
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com",
       "style-src 'self' 'unsafe-inline'",
       // Imágenes propias + R2/Cloudflare + Mercado Pago + data URIs
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
       // @react-pdf/renderer genera el PDF en un Web Worker creado desde un blob:
       "worker-src 'self' blob:",
-      // 'self' API Mercado Pago + data:/blob: para el WASM (fontkit/yoga) de @react-pdf
-      // + endpoint S3 de R2 para el PUT directo con presigned URLs (subida de imágenes)
-      "connect-src 'self' data: blob: https://api.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.r2.cloudflarestorage.com",
-      "frame-src https://*.mercadopago.com https://*.mercadolibre.com",
+      // 'self' API Mercado Pago + assets del Brick (*.mlstatic.com) + data:/blob: para el WASM
+      // (fontkit/yoga) de @react-pdf + endpoint S3 de R2 para el PUT directo con presigned URLs
+      "connect-src 'self' data: blob: https://api.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com https://*.r2.cloudflarestorage.com",
+      "frame-src https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com",
       // Bloquea objetos embebidos (Flash, plugins)
       "object-src 'none'",
       // Previene inyección de base URL

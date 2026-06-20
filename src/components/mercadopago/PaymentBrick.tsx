@@ -10,9 +10,11 @@ interface Props {
   orderId: string;
   amount: number;
   payerEmail?: string;
+  /** Se llama cuando el pago queda aprobado o en proceso (orden ya creada). */
+  onPaymentComplete?: () => void;
 }
 
-export const PaymentBrick = ({ orderId, amount, payerEmail }: Props) => {
+export const PaymentBrick = ({ orderId, amount, payerEmail, onPaymentComplete }: Props) => {
   const router = useRouter();
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,15 +72,10 @@ export const PaymentBrick = ({ orderId, amount, payerEmail }: Props) => {
           setErrorMessage('');
           const resp = await processPayment(orderId, formData);
 
-          if (resp.ok && resp.status === 'approved') {
-            router.refresh();
-            return;
-          }
-
+          // Aprobado o en proceso → la orden ya existe; vamos a la confirmación.
           if (resp.ok) {
-            // pending / in_process
-            setErrorMessage(resp.message ?? 'Tu pago está en proceso.');
-            router.refresh();
+            if (onPaymentComplete) onPaymentComplete();
+            else router.replace(`/orders/${orderId}`);
             return;
           }
 

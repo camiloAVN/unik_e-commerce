@@ -90,7 +90,7 @@ export const placeOrder = async(productIds: ProductToOrder[], address: Address)=
                     tax: tax,
                     total: total,
 
-                    OrderItem:{
+                    orderItems:{
                         createMany:{
                             data: productIds.map(p =>({
                                 quantity: p.quantity,

@@ -24,7 +24,7 @@ export default async function CheckoutPage() {
 
                 {/* Resumen — sticky en desktop, debajo en móvil */}
                 <div className="lg:sticky lg:top-24">
-                    <PlaceOrder userAddress={userAddress} />
+                    <PlaceOrder userAddress={userAddress} payerEmail={session.user.email ?? undefined} />
                 </div>
 
             </div>

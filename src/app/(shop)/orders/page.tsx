@@ -118,7 +118,7 @@ export default async function OrdersPage ()  {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm text-gray-900">{`productos: ${order.itemsInOrder}`}</div>
-                        <div className="text-sm text-gray-500">{order.OrderAddress?.firstName}</div>
+                        <div className="text-sm text-gray-500">{order.orderAddress?.firstName}</div>
                         <div className="text-sm text-gray-500">email</div>
                       </div>
                     </td>
@@ -161,7 +161,7 @@ export default async function OrdersPage ()  {
                 
                 <div className="space-y-2 mb-4">
                   <div>
-                    <p className="font-medium text-gray-800 text-sm">{order.OrderAddress?.firstName}</p>
+                    <p className="font-medium text-gray-800 text-sm">{order.orderAddress?.firstName}</p>
                     <p className="text-xs text-gray-500">email</p>
                   </div>
                   <p className="font-semibold text-gray-800">${order.total}</p>
