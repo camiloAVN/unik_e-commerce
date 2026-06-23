@@ -1,20 +1,13 @@
 import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
 
 const { auth } = NextAuth(authConfig);
 
 export default function middleware(request: NextRequest) {
-  // Fuerza HTTPS en producción (Railway termina TLS en el proxy).
-  if (process.env.NODE_ENV === 'production') {
-    const proto = request.headers.get('x-forwarded-proto');
-    if (proto === 'http') {
-      const url = request.nextUrl.clone();
-      url.protocol = 'https:';
-      url.port = '';
-      return NextResponse.redirect(url, 301);
-    }
-  }
+  // El proxy de Railway termina el TLS y sirve el dominio solo por HTTPS.
+  // No forzamos HTTPS aquí: el proxy reenvía internamente por HTTP, así que
+  // un redirect manual a https provoca un bucle infinito (ERR_TOO_MANY_REDIRECTS).
   return (auth as any)(request);
 }
 
