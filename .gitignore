@@ -38,6 +38,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# DNS zone exports
+/unikimportaciones.com.txt
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

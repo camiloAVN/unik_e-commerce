@@ -48,7 +48,7 @@ export const ProductGridItem = ({ product }: Props) => {
         className="relative block aspect-square overflow-hidden bg-[#F8F9FA]"
       >
         <Image
-          src={`/products/${displayImage}`}
+          src={displayImage?.startsWith('http') ? displayImage : `/products/${displayImage}`}
           alt={product.title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"

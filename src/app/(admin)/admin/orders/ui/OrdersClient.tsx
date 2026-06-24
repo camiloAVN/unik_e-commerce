@@ -322,7 +322,7 @@ export function OrdersClient({ orders }: { orders: Order[] }) {
                         {item.product.images[0] ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={`/products/${item.product.images[0].url}`}
+                            src={item.product.images[0].url.startsWith('http') ? item.product.images[0].url : `/products/${item.product.images[0].url}`}
                             alt={item.product.title}
                             className="w-full h-full object-cover"
                           />
