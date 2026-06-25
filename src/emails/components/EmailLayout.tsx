@@ -47,7 +47,7 @@ export function EmailLayout({ appUrl, preview, accentColor = '#D61C1C', children
           {/* Header — logo sobre blanco */}
           <Section style={header}>
             <Img
-              src={`${appUrl}/imgs/logo.png`}
+              src={`${appUrl}/imgs/logo_2.png`}
               alt={COMPANY.name}
               height={50}
               style={logo}
