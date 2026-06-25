@@ -1,18 +1,13 @@
 import {
-  Body,
   Column,
-  Container,
-  Head,
-  Heading,
   Hr,
-  Html,
   Link,
-  Preview,
   Row,
   Section,
   Text,
 } from '@react-email/components';
 import { OrderEmailData } from './types';
+import { EmailLayout } from './components/EmailLayout';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-CO', {
@@ -24,6 +19,7 @@ const fmt = (n: number) =>
 const shortId = (id: string) => id.slice(-8).toUpperCase();
 
 interface Props extends OrderEmailData {
+  appUrl: string;
   adminPanelUrl?: string;
 }
 
@@ -37,187 +33,133 @@ export function OrderNotificationEmail({
   subTotal,
   tax,
   total,
+  appUrl,
   adminPanelUrl,
 }: Props) {
   return (
-    <Html lang="es">
-      <Head />
-      <Preview>🛒 Nueva orden #{shortId(orderId)} — {customer.name} · {fmt(total)}</Preview>
-      <Body style={body}>
-        <Container style={container}>
+    <EmailLayout
+      appUrl={appUrl}
+      preview={`🛒 Nueva orden #${shortId(orderId)} — ${customer.name} · ${fmt(total)}`}
+    >
+      <Section style={content}>
 
-          {/* Header */}
-          <Section style={header}>
-            <Text style={brand}>UNIK</Text>
-            <Text style={headerSub}>Nueva orden recibida</Text>
-          </Section>
+        {/* Alert banner */}
+        <Section style={alertBanner}>
+          <Text style={alertText}>
+            🛒 Nueva compra confirmada · Orden #{shortId(orderId)}
+          </Text>
+        </Section>
 
-          <Section style={content}>
+        <Text style={dateLine}>{orderDate}</Text>
 
-            {/* Alert banner */}
-            <Section style={alertBanner}>
-              <Text style={alertText}>
-                🛒 Nueva compra confirmada · Orden #{shortId(orderId)}
+        <Hr style={hr} />
+
+        {/* Customer info */}
+        <Text style={sectionTitle}>Datos del cliente</Text>
+        <Section style={infoBox}>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Nombre</Text></Column>
+            <Column><Text style={valueStyle}>{customer.name}</Text></Column>
+          </Row>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Email</Text></Column>
+            <Column><Text style={valueStyle}>{customer.email}</Text></Column>
+          </Row>
+        </Section>
+
+        <Hr style={hr} />
+
+        {/* Shipping address */}
+        <Text style={sectionTitle}>Dirección de envío</Text>
+        <Section style={infoBox}>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Destinatario</Text></Column>
+            <Column><Text style={valueStyle}>{address.firstName} {address.lastName}</Text></Column>
+          </Row>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Dirección</Text></Column>
+            <Column>
+              <Text style={valueStyle}>
+                {address.address}{address.address2 ? `, ${address.address2}` : ''}
               </Text>
-            </Section>
+            </Column>
+          </Row>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Ciudad</Text></Column>
+            <Column><Text style={valueStyle}>{address.city}{address.postalCode ? ` — CP ${address.postalCode}` : ''}</Text></Column>
+          </Row>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>País</Text></Column>
+            <Column><Text style={valueStyle}>{address.country}</Text></Column>
+          </Row>
+          <Row style={infoRow}>
+            <Column style={infoLabel}><Text style={labelStyle}>Teléfono</Text></Column>
+            <Column><Text style={valueStyle}>{address.phone}</Text></Column>
+          </Row>
+        </Section>
 
-            <Text style={dateLine}>{orderDate}</Text>
+        <Hr style={hr} />
 
-            <Hr style={hr} />
+        {/* Products */}
+        <Text style={sectionTitle}>Productos ordenados</Text>
 
-            {/* Customer info */}
-            <Text style={sectionTitle}>Datos del cliente</Text>
-            <Section style={infoBox}>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Nombre</Text></Column>
-                <Column><Text style={valueStyle}>{customer.name}</Text></Column>
-              </Row>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Email</Text></Column>
-                <Column><Text style={valueStyle}>{customer.email}</Text></Column>
-              </Row>
-            </Section>
+        {items.map((item, i) => (
+          <Row key={i} style={itemRow}>
+            <Column style={{ flex: 1 }}>
+              <Text style={itemName}>{item.title}</Text>
+            </Column>
+            <Column style={itemQtyCol}>
+              <Text style={itemDetail}>×{item.quantity}</Text>
+            </Column>
+            <Column style={itemPriceCol}>
+              <Text style={itemDetail}>{fmt(item.price * item.quantity)}</Text>
+            </Column>
+          </Row>
+        ))}
 
-            <Hr style={hr} />
+        <Hr style={hr} />
 
-            {/* Shipping address */}
-            <Text style={sectionTitle}>Dirección de envío</Text>
-            <Section style={infoBox}>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Destinatario</Text></Column>
-                <Column><Text style={valueStyle}>{address.firstName} {address.lastName}</Text></Column>
-              </Row>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Dirección</Text></Column>
-                <Column>
-                  <Text style={valueStyle}>
-                    {address.address}{address.address2 ? `, ${address.address2}` : ''}
-                  </Text>
-                </Column>
-              </Row>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Ciudad</Text></Column>
-                <Column><Text style={valueStyle}>{address.city}{address.postalCode ? ` — CP ${address.postalCode}` : ''}</Text></Column>
-              </Row>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>País</Text></Column>
-                <Column><Text style={valueStyle}>{address.country}</Text></Column>
-              </Row>
-              <Row style={infoRow}>
-                <Column style={infoLabel}><Text style={labelStyle}>Teléfono</Text></Column>
-                <Column><Text style={valueStyle}>{address.phone}</Text></Column>
-              </Row>
-            </Section>
+        {/* Totals */}
+        <Section style={totalsSection}>
+          <Row style={totalRow}>
+            <Column><Text style={totalLabel}>Subtotal</Text></Column>
+            <Column><Text style={totalValue}>{fmt(subTotal)}</Text></Column>
+          </Row>
+          <Row style={totalRow}>
+            <Column><Text style={totalLabel}>IVA</Text></Column>
+            <Column><Text style={totalValue}>{fmt(tax)}</Text></Column>
+          </Row>
+          <Row style={{ ...totalRow, borderTop: '2px solid #D61C1C', paddingTop: '10px', marginTop: '4px' }}>
+            <Column><Text style={grandTotalLabel}>TOTAL</Text></Column>
+            <Column><Text style={grandTotalValue}>{fmt(total)}</Text></Column>
+          </Row>
+        </Section>
 
-            <Hr style={hr} />
+        <Hr style={hr} />
 
-            {/* Products */}
-            <Text style={sectionTitle}>Productos ordenados</Text>
+        {/* Transaction */}
+        <Text style={txText}>
+          ID de transacción Mercado Pago:{' '}
+          <span style={{ fontFamily: 'monospace' }}>{transactionId}</span>
+        </Text>
 
-            {items.map((item, i) => (
-              <Row key={i} style={itemRow}>
-                <Column style={{ flex: 1 }}>
-                  <Text style={itemName}>{item.title}</Text>
-                </Column>
-                <Column style={itemQtyCol}>
-                  <Text style={itemDetail}>×{item.quantity}</Text>
-                </Column>
-                <Column style={itemPriceCol}>
-                  <Text style={itemDetail}>{fmt(item.price * item.quantity)}</Text>
-                </Column>
-              </Row>
-            ))}
-
-            <Hr style={hr} />
-
-            {/* Totals */}
-            <Section style={totalsSection}>
-              <Row style={totalRow}>
-                <Column><Text style={totalLabel}>Subtotal</Text></Column>
-                <Column><Text style={totalValue}>{fmt(subTotal)}</Text></Column>
-              </Row>
-              <Row style={totalRow}>
-                <Column><Text style={totalLabel}>IVA (19%)</Text></Column>
-                <Column><Text style={totalValue}>{fmt(tax)}</Text></Column>
-              </Row>
-              <Row style={{ ...totalRow, borderTop: '2px solid #D61C1C', paddingTop: '10px', marginTop: '4px' }}>
-                <Column><Text style={grandTotalLabel}>TOTAL</Text></Column>
-                <Column><Text style={grandTotalValue}>{fmt(total)}</Text></Column>
-              </Row>
-            </Section>
-
-            <Hr style={hr} />
-
-            {/* Transaction */}
-            <Text style={txText}>
-              ID de transacción Mercado Pago:{' '}
-              <span style={{ fontFamily: 'monospace' }}>{transactionId}</span>
-            </Text>
-
-            {/* CTA */}
-            {adminPanelUrl && (
-              <Section style={ctaSection}>
-                <Link href={adminPanelUrl} style={ctaButton}>
-                  Ver orden en el panel →
-                </Link>
-              </Section>
-            )}
-
+        {/* CTA */}
+        {adminPanelUrl && (
+          <Section style={ctaSection}>
+            <Link href={adminPanelUrl} style={ctaButton}>
+              Ver orden en el panel →
+            </Link>
           </Section>
+        )}
 
-          {/* Footer */}
-          <Section style={footer}>
-            <Text style={footerText}>
-              Este mensaje es automático enviado desde el sistema de UNIK.
-            </Text>
-          </Section>
-
-        </Container>
-      </Body>
-    </Html>
+      </Section>
+    </EmailLayout>
   );
 }
 
 export default OrderNotificationEmail;
 
 // ── Styles ──────────────────────────────────────────────────────────────────
-
-const body: React.CSSProperties = {
-  backgroundColor: '#F4F4F5',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  margin: 0,
-  padding: '32px 0',
-};
-
-const container: React.CSSProperties = {
-  backgroundColor: '#FFFFFF',
-  borderRadius: '8px',
-  maxWidth: '600px',
-  margin: '0 auto',
-  overflow: 'hidden',
-};
-
-const header: React.CSSProperties = {
-  backgroundColor: '#111111',
-  padding: '24px 40px',
-  textAlign: 'center',
-};
-
-const brand: React.CSSProperties = {
-  color: '#FFFFFF',
-  fontSize: '26px',
-  fontWeight: '800',
-  letterSpacing: '4px',
-  margin: '0 0 4px',
-};
-
-const headerSub: React.CSSProperties = {
-  color: '#AAAAAA',
-  fontSize: '12px',
-  margin: 0,
-  letterSpacing: '1px',
-  textTransform: 'uppercase',
-};
 
 const content: React.CSSProperties = {
   padding: '28px 40px',
@@ -371,17 +313,4 @@ const ctaButton: React.CSSProperties = {
   fontWeight: '700',
   padding: '12px 28px',
   textDecoration: 'none',
-};
-
-const footer: React.CSSProperties = {
-  backgroundColor: '#F8F9FA',
-  borderTop: '1px solid #E5E5E5',
-  padding: '16px 40px',
-  textAlign: 'center',
-};
-
-const footerText: React.CSSProperties = {
-  color: '#AAAAAA',
-  fontSize: '11px',
-  margin: 0,
 };

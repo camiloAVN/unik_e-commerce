@@ -73,7 +73,7 @@ export async function sendOrderEmails(orderId: string) {
       from:    FROM_SALES,
       to:      order.user.email,
       subject: `¡Compra confirmada! Orden #${orderId.slice(-8).toUpperCase()}`,
-      react:   <OrderConfirmationEmail {...data} />,
+      react:   <OrderConfirmationEmail {...data} appUrl={appUrl} />,
     });
 
     // 2 — Admin notification (only if configured)
@@ -86,6 +86,7 @@ export async function sendOrderEmails(orderId: string) {
         react:   (
           <OrderNotificationEmail
             {...data}
+            appUrl={appUrl}
             adminPanelUrl={`${appUrl}/admin/orders`}
           />
         ),

@@ -63,7 +63,6 @@ export async function sendCustomEmail(input: SendInput) {
       react: (
         <CustomEmail
           body={body}
-          issuerName={settings.quoteIssuerName || 'UNIK'}
           brandColor={settings.quoteHeaderColor || '#D61C1C'}
           appUrl={appUrl}
         />
